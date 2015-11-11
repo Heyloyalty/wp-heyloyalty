@@ -1,0 +1,44 @@
+.someclass {
+    display:none;
+}
+.wp-container, .hl-container {
+    width:15%;
+    float: left;
+    margin:0px 20px 0px 0px;
+}
+.hl-container {
+    width:80%;
+    margin-top:10px;
+}
+
+.wp-container label {
+    font-size:14px;
+    font-weight: bold;
+    margin: 10px 0px;
+}
+.wp-container .droppable {
+    border: 1px solid #404040;
+    height: 30px;
+    background-color: #656a6f;
+    padding: 5px;
+}
+
+.hl-container .draggable {
+    border: 1px solid #0074a2;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #0073aa;
+    margin: 10px 0px;
+    height: 40px;
+    width: 18%;
+    cursor: pointer;
+    text-align: center;
+}
+.ui-draggable-handle {
+    border: 1px solid #0074a2;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #0073aa;
+    height: 30px;
+    text-align: center;
+}
