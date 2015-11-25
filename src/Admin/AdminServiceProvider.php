@@ -18,6 +18,10 @@ class AdminServiceProvider implements ServiceProviderInterface {
         $container['heyloyalty-services'] = function($container) {
           return new HeyloyaltyServices();
         };
+
+        $container['admin-services'] = function($app) {
+            return new HeyloyaltyServices();
+        };
     }
 
 }

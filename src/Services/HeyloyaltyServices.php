@@ -16,6 +16,18 @@ class HeyloyaltyServices {
         $response = $this->responseToArray($response);
         return $response;
     }
+    public function updateMember($params,$list_id,$member_id)
+    {
+        $response = $this->sendRequest('PUT','/lists/'.$list_id.'/members/'.$member_id,$params);
+        $response = $this->responseToArray($response);
+        return $response;
+    }
+    public function deleteMember($list_id,$member_id)
+    {
+        $response = $this->sendRequest('DELETE','/lists/'.$list_id.'/members/'.$member_id);
+        $response = $this->responseToArray($response);
+        return $response;
+    }
     public function getList($list_id)
     {
         $response = $this->sendRequest('GET','/lists/'.$list_id);
