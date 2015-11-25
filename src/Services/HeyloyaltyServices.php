@@ -10,6 +10,19 @@ class HeyloyaltyServices {
     const HOST = 'https://api.heyloyalty.com';
     const ENDPOINTTYPE = '/loyalty/v1';
 
+    public function createMember($params,$list_id)
+    {
+        $response = $this->sendRequest('POST','/lists/'.$list_id.'/members',$params);
+        $response = $this->responseToArray($response);
+        return $response;
+    }
+    public function getList($list_id)
+    {
+        $response = $this->sendRequest('GET','/lists/'.$list_id);
+        $response = $this->responseToArray($response);
+        return $response;
+    }
+
     public function getLists()
     {
         $response = $this->sendRequest('GET','/lists/');

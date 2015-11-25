@@ -31,6 +31,11 @@ class PluginServiceProvider implements ServiceProviderInterface
             return $mappings;
         };
 
+        $container['woo'] = function ($app) {
+            $woo = (array)get_option('hl_woo');
+            return $woo;
+        };
+
         $container['admin'] = function ($app) {
             return new Admin($app);
         };
