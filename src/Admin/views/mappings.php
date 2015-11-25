@@ -35,13 +35,18 @@
                                     <div class="wp-container">
                                         <?php foreach ($user as $key => $value): ?>
                                             <label><?php echo $key; ?>:
-                                                <div class="droppable " data-name="<?php echo $key?>"></div>
+                                                <div class="droppable " data-name="<?php echo $key?>">
+                                                    <?php if(isset($mappings['fields'][$key])) : ?>
+                                                        <div class="draggable"><label><?php echo $mappings['fields'][$key]; ?></label></div>
+                                                <?php endif; ?>
+                                                </div>
                                             </label>
                                         <?php endforeach; ?>
                                     </div>
                                     <div class="hl-container">
 
                                     </div>
+                                    <input type="hidden" name="mapped" value="" id="mapped-fields" />
                                 </td>
                             </tr>
                         </table

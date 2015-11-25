@@ -34,7 +34,7 @@
     cursor: pointer;
     text-align: center;
 }
-.ui-draggable-handle {
+.ui-draggable-handle,.wp-container .draggable {
     border: 1px solid #0074a2;
     font-size: 14px;
     color: #ffffff;

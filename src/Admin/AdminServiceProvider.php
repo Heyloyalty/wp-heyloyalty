@@ -5,6 +5,7 @@ namespace Heyloyalty\Admin;
 
 use Heyloyalty\DI\Container;
 use Heyloyalty\DI\ServiceProviderInterface;
+use Heyloyalty\Services\AdminServices;
 use Heyloyalty\Services\HeyloyaltyServices;
 
 class AdminServiceProvider implements ServiceProviderInterface {
@@ -20,7 +21,7 @@ class AdminServiceProvider implements ServiceProviderInterface {
         };
 
         $container['admin-services'] = function($app) {
-            return new HeyloyaltyServices();
+            return new AdminServices();
         };
     }
 

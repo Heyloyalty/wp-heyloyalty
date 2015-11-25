@@ -23,7 +23,7 @@ class AdminServices {
     public function getEmail($id)
     {
         if($user = get_userdata($id))
-            return $user->email;
+            return $user->user_email;
 
         return null;
     }
@@ -117,6 +117,7 @@ class AdminServices {
 
         try{
             $response = $this->HlServices->createMember($params,$list_id);
+            delete_user_meta($user_id,'member_id');
             $response = add_user_meta($user_id,'member_id',$response['id'],true);
         }catch (\Exception $e)
         {
@@ -141,7 +142,7 @@ class AdminServices {
             $response = $this->HlServices->updateMember($params,$list_id,$member_id);
         }catch (\Exception $e)
         {
-            return 0;
+            return $e->getMessage();
         }
         return $user_id;
     }
