@@ -14,5 +14,6 @@ return array(
     'Heyloyalty\\Plugin' => $baseDir . '/src/Plugin.php',
     'Heyloyalty\\PluginBase' => $baseDir . '/src/PluginBase.php',
     'Heyloyalty\\PluginServiceProvider' => $baseDir . '/src/PluginServiceProvider.php',
+    'Heyloyalty\\Services\\AdminServices' => $baseDir . '/src/Services/AdminServices.php',
     'Heyloyalty\\Services\\HeyloyaltyServices' => $baseDir . '/src/Services/HeyloyaltyServices.php',
 );
