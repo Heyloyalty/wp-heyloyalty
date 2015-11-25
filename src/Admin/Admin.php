@@ -65,7 +65,7 @@ class Admin
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             array_push($menu_items, array(__('Woocommerce', 'wp-heyloyalty'), __('Woocommerce', 'wp-heyloyalty'), 'hl-woocommerce', array($this, 'show_woocommerce_page')));
         }
-        $test = true;
+        $test = false;
         if($test)
         {
             array_push($menu_items, array(__('test-page', 'wp-heyloyalty'), __('Test ', 'wp-heyloyalty'), 'hl-test', array($this, 'show_test_page')));
@@ -103,9 +103,19 @@ class Admin
 
     public function show_mapping_page()
     {
+        if($_POST['option_page'] == 'hl_mappings')
+        {
+            $str = $_POST['mapped'];
+            preg_match_all("/([^,= ]+)=([^,= ]+)/", $str, $r);
+            $result = array_combine($r[1], $r[2]);
+            $mappings = get_option('hl_mappings');
+            $mappings['fields'] = $result;
+            update_option('hl_mappings',$mappings);
+        }
+
         try {
             $lists = $this->plugin['heyloyalty-services']->getLists();
-            $user = get_user_meta(2);
+            $user = get_user_meta(1);
             unset(
                 $user['rich_editing'],
                 $user['comment_shortcuts'],
@@ -119,8 +129,8 @@ class Admin
                 $user['session_tokens'],
                 $user['wp_dashboard_quick_press_last_post_id']
             );
-            $user['email'] = get_the_author_meta('user_email', 2);
-            $user['website'] = get_the_author_meta('user_url', 2);
+            $user['email'] = get_the_author_meta('user_email', 1);
+            $user['website'] = get_the_author_meta('user_url', 1);
         } catch (\Exception $e) {
             //TODO handle exception.
         }
@@ -159,7 +169,6 @@ class Admin
             $user = array_merge($user,$woo_fields);
         }
         $mappings = $this->plugin['mappings'];
-        var_dump($mappings);
         require __DIR__ . '/views/mappings.php';
     }
 
@@ -174,22 +183,6 @@ class Admin
     }
     public function show_test_page()
     {
-        if($_POST['identity'] === 'test-page')
-        {
-            $fields = get_option('hl_mappings');
-            $metadata = get_metadata('user',2,'',true);
-            $user_fields = [];
-            foreach($fields['fields'] as $key => $value)
-            {
-                $user_fields[$value] = $metadata[$key][0];
-            }
-            $user_fields['email'] = 'bb@minmail.dk';
-            $u = $this->plugin['heyloyalty-services']->createMember($user_fields,2755);
-        }
-        $testSettings = array('result' => $u);
-        
-        $i = add_user_meta(2,'member_id','',true);
-        var_dump($i);
         require __DIR__ . '/views/test.php';
     }
 
