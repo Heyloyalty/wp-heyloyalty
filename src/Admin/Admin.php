@@ -37,6 +37,8 @@ class Admin
     {
         add_action('init', array($this, 'register'));
         add_action('admin_menu', array($this, 'menu'));
+        add_action('user_register', array($this,'add_user_to_heyloyalty'));
+        add_action('profile_update',array($this,'update_user_in_heyloyalty'));
     }
 
     protected function add_ajax_hooks()
@@ -83,6 +85,24 @@ class Admin
         register_setting('hl-settings', 'hl-settings');
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
+    }
+    public function add_user_to_heyloyalty($user_id)
+    {
+        try{
+            $response = $this->plugin['admin-services']->addHeyloyaltyMember($user_id);
+        }catch (\Exception $e)
+        {
+            //TODO
+        }
+    }
+    public function update_user_in_heyloyalty($user_id)
+    {
+        try{
+            $response = $this->plugin['admin-services']->updateHeyloyaltyMember($user_id);
+        }catch (\Exception $e)
+        {
+            //TODO
+        }
     }
 
     public function show_front_page()
