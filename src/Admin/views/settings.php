@@ -35,6 +35,7 @@
 				</table
 				<?php submit_button(); ?>
 			</form>
+            <?php if('prut' == 'fis') : ?>
             <table class="form-table">
                 <th><label for="hl_api_settings"><?php _e( 'Sync settings', 'hl-api-settings' ); ?></label></th>
                 <tr>
@@ -49,6 +50,7 @@
                         </td>
                     </tr>
             </table>
+            <?php endif; ?>
 		</div>
         </div>
 </div>
