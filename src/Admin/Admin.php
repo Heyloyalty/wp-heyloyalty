@@ -167,6 +167,7 @@ class Admin
     }
     public function show_test_page()
     {
+        var_dump(get_user_meta(2,'test_unsub'));
         require __DIR__ . '/views/test.php';
     }
 
