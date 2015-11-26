@@ -1,2 +1,2 @@
 # wp-heyloyalty
-wordpress plugin for integrate with email platform Heyloyalty
+wordpress plugin for Heyloyalty email platform
