@@ -3,7 +3,8 @@
 
 namespace Heyloyalty\Services;
 
-use Heyloyalty\Services\HeyloyaltyServices as heyloyaltyServices;
+use Carbon\Carbon;
+use Heyloyalty\Services\HeyloyaltyServices;
 
 class AdminServices {
 
@@ -29,6 +30,25 @@ class AdminServices {
     }
 
     /**
+     * Get registered date
+     *
+     * @param $user_id
+     * @return null|string
+     */
+    public function getRegisteredDate($user_id)
+    {
+        if($user = get_userdata($user_id))
+        {
+            $date = Carbon::createFromFormat('Y-m-d H:i:s',$user->user_registered)->toDateString();
+            return $date;
+
+        }
+
+
+        return null;
+    }
+
+    /**
      * Get heyloyalty member id
      *
      * @param $user_id
@@ -49,7 +69,7 @@ class AdminServices {
      * @param $metadata
      * @return array
      */
-    protected function mapUserFields($metadata)
+    protected function mapUserFields($metadata,$user_id)
     {
         $mappings = get_option('hl_mappings');
 
@@ -66,6 +86,10 @@ class AdminServices {
         {
             if(isset($metadata[$key][0]))
             $mapped[$value] = $metadata[$key][0];
+
+            //TODO find another way of injecting user or other specifik fields.
+            if($key == 'user_registered')
+                $mapped[$value] = $this->getRegisteredDate($user_id);
         }
 
         return $mapped;
@@ -83,7 +107,7 @@ class AdminServices {
             return array();
 
         $metadata = get_user_meta($user_id);
-        $params = $this->mapUserFields($metadata);
+        $params = $this->mapUserFields($metadata,$user_id);
         $params['email'] = $email;
 
         return $params;

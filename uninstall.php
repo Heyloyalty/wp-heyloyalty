@@ -23,3 +23,6 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
+delete_option('hl_settings');
+delete_option('hl_mappings');
+delete_option('hl_woo');

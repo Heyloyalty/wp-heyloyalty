@@ -2,7 +2,7 @@
     display:none;
 }
 .wp-container, .hl-container {
-    width:15%;
+    width:100%;
     float: left;
     margin:0px 20px 0px 0px;
 }
@@ -12,9 +12,10 @@
 }
 
 .wp-container label {
+    min-width: 10%;
     font-size:14px;
     font-weight: bold;
-    margin: 10px 0px;
+    margin: 10px 10px;
 }
 .wp-container .droppable {
     border: 1px solid #404040;
@@ -24,11 +25,12 @@
 }
 
 .hl-container .draggable {
+    float:left;
     border: 1px solid #0074a2;
     font-size: 14px;
     color: #ffffff;
     background-color: #0073aa;
-    margin: 10px 0px;
+    margin: 10px 10px;
     height: 40px;
     width: 18%;
     cursor: pointer;
