@@ -40,6 +40,10 @@ class Admin
         add_action('admin_menu', array($this, 'menu'));
         add_action('user_register', array($this,'add_user_to_heyloyalty'));
         add_action('profile_update',array($this,'update_user_in_heyloyalty'));
+        add_action('show_user_profile',array($this,'add_permission_field'));
+        add_action('edit_user_profile',array($this,'add_permission_field'));
+        add_action('personal_option_update',array($this,'save_permission'));
+        add_action('edit_user_profile_update',array( $this,'save_permission'));
     }
 
     protected function add_ajax_hooks()
@@ -89,6 +93,7 @@ class Admin
     }
     public function add_user_to_heyloyalty($user_id)
     {
+        update_user_meta($user_id,'hl_permission','on');
         try{
             $response = $this->plugin['admin-services']->addHeyloyaltyMember($user_id);
         }catch (\Exception $e)
@@ -162,9 +167,6 @@ class Admin
     }
     public function show_test_page()
     {
-        $user = get_userdata(8);
-        $date = Carbon::createFromFormat('Y-m-d H:i:s',$user->user_registered)->toDateString();
-        var_dump($date);
         require __DIR__ . '/views/test.php';
     }
 
@@ -199,6 +201,18 @@ class Admin
         wp_enqueue_script('jquery-ui-droppable', false, array('jquery'));
 
         wp_localize_script('hl-ajax-request', 'HLajax', array('ajaxurl' => admin_url('admin-ajax.php')));
+    }
+
+    public function add_permission_field($user)
+    {
+        $userID = $user->ID;
+        require __DIR__ . '/partials/permission.php';
+    }
+    public function save_permission($user_id)
+    {
+        if(current_user_can('edit_user',$user_id)){
+            update_user_meta($user_id,'hl_permission',$_POST['hl_permission']);
+        }
     }
 
     protected function save_hl_settings($settings)

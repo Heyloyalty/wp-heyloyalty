@@ -136,6 +136,9 @@ class AdminServices {
      */
     public function addHeyloyaltyMember($user_id)
     {
+        if(get_user_meta($user_id,'hl_permission',true) == 'on')
+            return 0;
+
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
 
@@ -159,6 +162,9 @@ class AdminServices {
      */
     public function updateHeyloyaltyMember($user_id)
     {
+        if(get_user_meta($user_id,'hl_permission',true) == 'on')
+            return 0;
+
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
         $member_id = $this->getMemberID($user_id);
