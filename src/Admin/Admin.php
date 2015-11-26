@@ -3,6 +3,7 @@
 namespace Heyloyalty\Admin;
 
 use Heyloyalty\IPlugin;
+use Carbon\Carbon;
 
 class Admin
 {
@@ -67,7 +68,7 @@ class Admin
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             array_push($menu_items, array(__('Woocommerce', 'wp-heyloyalty'), __('Woocommerce', 'wp-heyloyalty'), 'hl-woocommerce', array($this, 'show_woocommerce_page')));
         }
-        $test = false;
+        $test = true;
         if($test)
         {
             array_push($menu_items, array(__('test-page', 'wp-heyloyalty'), __('Test ', 'wp-heyloyalty'), 'hl-test', array($this, 'show_test_page')));
@@ -107,7 +108,7 @@ class Admin
 
     public function show_front_page()
     {
-        //todo should show hetloyalty feed and latest actions.
+        //todo should show heyloyalty feed and latest actions.
     }
 
     public function show_settings_page()
@@ -135,59 +136,17 @@ class Admin
 
         try {
             $lists = $this->plugin['heyloyalty-services']->getLists();
-            $user = get_user_meta(1);
-            unset(
-                $user['rich_editing'],
-                $user['comment_shortcuts'],
-                $user['admin_color'],
-                $user['use_ssl'],
-                $user['show_admin_bar_front'],
-                $user['wp_capabilities'],
-                $user['wp_user_level'],
-                $user['dismissed_wp_pointers'],
-                $user['show_welcome_panel'],
-                $user['session_tokens'],
-                $user['wp_dashboard_quick_press_last_post_id']
-            );
-            $user['email'] = get_the_author_meta('user_email', 1);
-            $user['website'] = get_the_author_meta('user_url', 1);
         } catch (\Exception $e) {
             //TODO handle exception.
         }
+        $user_fields = $this->wp_fields();
         /**
          * Check if WooCommerce is active
          **/
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-            $woo_fields = array(
-                'billing_first_name' => '',
-                'billing_last_name' => '',
-                'billing_company' => '',
-                'billing_address_1' =>'',
-                'billing_address_2' => '',
-                'billing_city' => '',
-                'billing_postalcode' => '',
-                'billing_country' => '',
-                'billing_state' => '',
-                'billing_phone' => '',
-                'billing_email' => '',
-                'shipping_first_name' => '',
-                'shipping_last_name' => '',
-                'shipping_company'=> '',
-                'shipping_address_1' => '',
-                'shipping_address_2' => '',
-                'shipping_city' => '',
-                'shipping_postalcode' => '',
-                'shipping_country' => '',
-                'shipping_state' => ''
-            );
-
-            foreach($woo_fields as $key => $value)
-            {
-                unset($user[$key]);
-            }
-
-            $user = array_merge($user,$woo_fields);
+            $user_fields = array_merge($user_fields,$this->woo_fields());
         }
+
         $mappings = $this->plugin['mappings'];
         require __DIR__ . '/views/mappings.php';
     }
@@ -203,6 +162,9 @@ class Admin
     }
     public function show_test_page()
     {
+        $user = get_userdata(8);
+        $date = Carbon::createFromFormat('Y-m-d H:i:s',$user->user_registered)->toDateString();
+        var_dump($date);
         require __DIR__ . '/views/test.php';
     }
 
@@ -262,5 +224,46 @@ class Admin
         }
 
         return $response;
+    }
+
+    protected function woo_fields()
+    {
+        $woo_fields = array(
+                'billing_first_name',
+                'billing_last_name',
+                'billing_company',
+                'billing_address_1',
+                'billing_address_2',
+                'billing_city',
+                'billing_postalcode',
+                'billing_country',
+                'billing_state',
+                'billing_phone',
+                'billing_email',
+                'shipping_first_name',
+                'shipping_last_name',
+                'shipping_company',
+                'shipping_address_1',
+                'shipping_address_2',
+                'shipping_city',
+                'shipping_postalcode',
+                'shipping_country',
+                'shipping_state'
+            );
+        return $woo_fields;
+    }
+
+    protected function wp_fields()
+    {
+        $wp_fields = array(
+            'nickname',
+            'first_name',
+            'last_name',
+            'description',
+            'website',
+            'email',
+            'user_registered'
+        );
+        return $wp_fields;
     }
 }
