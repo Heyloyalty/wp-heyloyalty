@@ -11,10 +11,12 @@
                         </th>
 
                         <tr>
+                            <?php if('tumpe' === 'knold') : ?>
                             <td><label><?php _e('Abandon basket', 'abandonbasket'); ?></label></td>
                             <td>
                                 <input type="checkbox" name="hl_woo[abandon]" <?php echo $checked = (isset($woo['abandon']) && $woo['abandon'] == 'on') ? 'checked' : '';?>/>
                             </td>
+                            <?php endif; ?>
                         </tr>
                         <tr>
                             <td><label><?php _e('Product feeds', 'product-feeds'); ?><label></td>
