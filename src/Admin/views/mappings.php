@@ -11,7 +11,9 @@
                     <form action="" method="post">
                         <?php settings_fields('hl_mappings'); ?>
                         <table class="form-table">
-                            <th><label for="hl_api_settings"><?php _e('List mappings', 'hl-list-mappings'); ?></label>
+                            <th colspan="2">
+                                <label for="hl_api_settings"><?php _e('List mappings', 'hl-list-mappings'); ?></label>
+                                <div><p>Here you can map your wordpress fields to a Heyloyalty list, if you have woocommerce installed you will see more fields.</p></div>
                             </th>
 
                             <tr>
@@ -27,14 +29,19 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="16%"><h4>User fields</h4></td>
-                                <td><h4>List fields</h4></td>
+                               <td colspan="2">
+                                   <h3>Heyloyalty list fields</h3>
+                                   <div class="hl-container">
+
+                                    </div>
+                               </td>
                             </tr>
                             <tr>
                                 <td colspan="2">
+                                    <h3>Wordpress user fields</h3>
                                     <div class="wp-container">
-                                        <?php foreach ($user as $key => $value): ?>
-                                            <label><?php echo $key; ?>:
+                                        <?php foreach ($user_fields as $key): ?>
+                                            <label style="float:left;"><?php echo $key; ?>:
                                                 <div class="droppable " data-name="<?php echo $key?>">
                                                     <?php if(isset($mappings['fields'][$key])) : ?>
                                                         <div class="draggable"><label><?php echo $mappings['fields'][$key]; ?></label></div>
@@ -42,9 +49,6 @@
                                                 </div>
                                             </label>
                                         <?php endforeach; ?>
-                                    </div>
-                                    <div class="hl-container">
-
                                     </div>
                                     <input type="hidden" name="mapped" value="" id="mapped-fields" />
                                 </td>
