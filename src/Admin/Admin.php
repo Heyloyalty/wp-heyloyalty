@@ -38,12 +38,14 @@ class Admin
     {
         add_action('init', array($this, 'register'));
         add_action('admin_menu', array($this, 'menu'));
-        add_action('user_register', array($this,'add_user_to_heyloyalty'));
-        add_action('profile_update',array($this,'update_user_in_heyloyalty'));
-        add_action('show_user_profile',array($this,'add_permission_field'));
-        add_action('edit_user_profile',array($this,'add_permission_field'));
-        add_action('personal_option_update',array($this,'save_permission'));
-        add_action('edit_user_profile_update',array( $this,'save_permission'));
+        add_action('user_register', array($this, 'add_user_to_heyloyalty'));
+        add_action('profile_update', array($this, 'update_user_in_heyloyalty'));
+        add_action('show_user_profile', array($this, 'add_permission_field'));
+        add_action('edit_user_profile', array($this, 'add_permission_field'));
+        add_action('personal_option_update', array($this, 'save_permission'));
+        add_action('edit_user_profile_update', array($this, 'save_permission'));
+        add_action('wp_login', array($this, 'last_visit'),10,2);
+        add_action('woocommerce_payment_complete', array($this, 'last_buy'),10,1);
     }
 
     protected function add_ajax_hooks()
@@ -73,8 +75,7 @@ class Admin
             array_push($menu_items, array(__('Woocommerce', 'wp-heyloyalty'), __('Woocommerce', 'wp-heyloyalty'), 'hl-woocommerce', array($this, 'show_woocommerce_page')));
         }
         $test = true;
-        if($test)
-        {
+        if ($test) {
             array_push($menu_items, array(__('test-page', 'wp-heyloyalty'), __('Test ', 'wp-heyloyalty'), 'hl-test', array($this, 'show_test_page')));
         }
         foreach ($menu_items as $item) {
@@ -91,22 +92,34 @@ class Admin
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
     }
+
+    public function last_visit($user_login, $user)
+    {
+        update_user_meta($user->ID, 'hl_last_visit', Carbon::now()->toDateString());
+    }
+
+    public function last_buy($order_id)
+    {
+        $order = new \WC_Order($order_id);
+        $user_id = $order->get_user_id();
+        update_user_meta($user_id, 'hl_last_buy', Carbon::now()->toDateString());
+    }
+
     public function add_user_to_heyloyalty($user_id)
     {
-        update_user_meta($user_id,'hl_permission','on');
-        try{
+        update_user_meta($user_id, 'hl_permission', 'on');
+        try {
             $response = $this->plugin['admin-services']->addHeyloyaltyMember($user_id);
-        }catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             //TODO
         }
     }
+
     public function update_user_in_heyloyalty($user_id)
     {
-        try{
+        try {
             $response = $this->plugin['admin-services']->updateHeyloyaltyMember($user_id);
-        }catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             //TODO
         }
     }
@@ -129,14 +142,13 @@ class Admin
 
     public function show_mapping_page()
     {
-        if($_POST['option_page'] == 'hl_mappings')
-        {
+        if (isset($_POST['option_page']) && $_POST['option_page'] == 'hl_mappings') {
             $str = $_POST['mapped'];
             preg_match_all("/([^,= ]+)=([^,= ]+)/", $str, $r);
             $result = array_combine($r[1], $r[2]);
             $mappings = get_option('hl_mappings');
             $mappings['fields'] = $result;
-            update_option('hl_mappings',$mappings);
+            update_option('hl_mappings', $mappings);
         }
 
         try {
@@ -149,7 +161,7 @@ class Admin
          * Check if WooCommerce is active
          **/
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-            $user_fields = array_merge($user_fields,$this->woo_fields());
+            $user_fields = array_merge($user_fields, $this->woo_fields());
         }
 
         $mappings = $this->plugin['mappings'];
@@ -158,16 +170,18 @@ class Admin
 
     public function show_woocommerce_page()
     {
-        if ($_POST['option_page'] === 'hl_woo') {
+        if (isset($_POST['option_page']) && $_POST['option_page'] === 'hl_woo') {
             $settings = (isset($_POST['hl_woo'])) ? $_POST['hl_woo'] : 'off';
             $this->save_hl_woo($settings);
         }
         $woo = $this->plugin['woo'];
         require __DIR__ . '/views/woocommerce.php';
     }
+
     public function show_test_page()
     {
-        var_dump(get_user_meta(2,'test_unsub'));
+        $woo = new \WC_Order(15);
+        var_dump($woo->get_user());
         require __DIR__ . '/views/test.php';
     }
 
@@ -209,10 +223,11 @@ class Admin
         $userID = $user->ID;
         require __DIR__ . '/partials/permission.php';
     }
+
     public function save_permission($user_id)
     {
-        if(current_user_can('edit_user',$user_id)){
-            update_user_meta($user_id,'hl_permission',$_POST['hl_permission']);
+        if (current_user_can('edit_user', $user_id)) {
+            update_user_meta($user_id, 'hl_permission', $_POST['hl_permission']);
         }
     }
 
@@ -220,9 +235,10 @@ class Admin
     {
         update_option('hl_settings', $settings);
     }
+
     protected function save_hl_woo($settings)
     {
-        update_option('hl_woo',$settings);
+        update_option('hl_woo', $settings);
     }
 
     protected function getListForMapping($list_id)
@@ -230,7 +246,7 @@ class Admin
         try {
             $mappings = array('first_name' => 'firstname', 'last_name' => 'lastname', 'email' => 'email', 'billing_phone' => 'mobile');
             $response = $this->plugin['heyloyalty-services']->getList($list_id);
-            update_option('hl_mappings',array('list_id' => $list_id,'fields' => $mappings));
+            update_option('hl_mappings', array('list_id' => $list_id, 'fields' => $mappings));
             $response = json_encode($response);
 
 
@@ -244,27 +260,29 @@ class Admin
     protected function woo_fields()
     {
         $woo_fields = array(
-                'billing_first_name',
-                'billing_last_name',
-                'billing_company',
-                'billing_address_1',
-                'billing_address_2',
-                'billing_city',
-                'billing_postalcode',
-                'billing_country',
-                'billing_state',
-                'billing_phone',
-                'billing_email',
-                'shipping_first_name',
-                'shipping_last_name',
-                'shipping_company',
-                'shipping_address_1',
-                'shipping_address_2',
-                'shipping_city',
-                'shipping_postalcode',
-                'shipping_country',
-                'shipping_state'
-            );
+            'billing_first_name',
+            'billing_last_name',
+            'billing_company',
+            'billing_address_1',
+            'billing_address_2',
+            'billing_city',
+            'billing_postalcode',
+            'billing_country',
+            'billing_state',
+            'billing_phone',
+            'billing_email',
+            'shipping_first_name',
+            'shipping_last_name',
+            'shipping_company',
+            'shipping_address_1',
+            'shipping_address_2',
+            'shipping_city',
+            'shipping_postalcode',
+            'shipping_country',
+            'shipping_state',
+            'hl_last_visit',
+            'hl_last_buy'
+        );
         return $woo_fields;
     }
 
