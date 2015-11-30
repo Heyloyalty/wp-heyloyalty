@@ -5,12 +5,22 @@
             <h2><?php _e('Test page', 'wp-heyloyalty'); ?>
                 <form action="" method="post">
                     <table class="form-table">
-                        <th><label
-                                for="hl_api_settings"><?php _e('Test settings', 'hl-woo-settings'); ?></label>
+                        <th>
+                            Time
                         </th>
-                        <tr><td>
-                                <label>Testing...</label>
-                            </td></tr>
+                        <th>
+                            Event type
+                        </th>
+                        <th>
+                            Message
+                        </th>
+
+                                <?php foreach($status as $key => $value) : ?>
+                                    <tr>
+                                    <td><?php echo str_replace('entry-','',$key);?></td><td><?php echo $value['type']; ?></td><td><?php echo $value['message'];?></td>
+                            </tr>
+                                <?php endforeach; ?>
+
                         <input type="hidden" name="identity" value="test-page" />
                     </table
                     <?php submit_button(); ?>

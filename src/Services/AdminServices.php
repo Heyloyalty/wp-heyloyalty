@@ -136,7 +136,8 @@ class AdminServices {
      */
     public function addHeyloyaltyMember($user_id)
     {
-        if(get_user_meta($user_id,'hl_permission',true) == 'on')
+
+        if(get_user_meta($user_id,'hl_permission',true) != 'on')
             return 0;
 
         $list_id = $this->getListID();
@@ -146,8 +147,10 @@ class AdminServices {
             $response = $this->HlServices->createMember($params,$list_id);
             delete_user_meta($user_id,'member_id');
             $response = add_user_meta($user_id,'member_id',$response['id'],true);
+            $this->setStatus('created','user_id '.$user_id.' was created on list '.$list_id);
         }catch (\Exception $e)
         {
+            $this->setError($user_id.': could nnot be created');
             return 0;
         }
 
@@ -162,7 +165,7 @@ class AdminServices {
      */
     public function updateHeyloyaltyMember($user_id)
     {
-        if(get_user_meta($user_id,'hl_permission',true) == 'on')
+        if(get_user_meta($user_id,'hl_permission',true) != 'on')
             return 0;
 
         $list_id = $this->getListID();
@@ -170,9 +173,11 @@ class AdminServices {
         $member_id = $this->getMemberID($user_id);
         try{
             $response = $this->HlServices->updateMember($params,$list_id,$member_id);
+            $this->setStatus('updated','user_id '.$user_id.' was updated to list '.$list_id);
         }catch (\Exception $e)
         {
-            return $e->getMessage();
+            $this->setError($user_id.': could not be updated');
+            return 0;
         }
         return $user_id;
     }
@@ -190,10 +195,35 @@ class AdminServices {
 
         try{
             $response = $this->HlServices->deleteMember($list_id,$member_id);
+            $this->setStatus('deleted','user_id '.$user_id.' was deleted from list '.$list_id);
         }catch (\Exception $e)
         {
+            $this->setError($user_id.': could not be deleted');
             return 0;
         }
         return $user_id;
+    }
+
+    /**
+     * Set error
+     * @param $message
+     */
+    protected function setError($type = 'error',$message)
+    {
+        $errors = get_option('errors');
+        $errors['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
+        update_option('errors',$errors);
+    }
+
+    /**
+     * Set status
+     * @param $type
+     * @param $message
+     */
+    protected function setStatus($type,$message)
+    {
+        $status = get_option('status');
+        $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
+        update_option('status',$status);
     }
 }
