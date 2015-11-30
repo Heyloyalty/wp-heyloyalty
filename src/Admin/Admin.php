@@ -74,7 +74,7 @@ class Admin
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             array_push($menu_items, array(__('Woocommerce', 'wp-heyloyalty'), __('Woocommerce', 'wp-heyloyalty'), 'hl-woocommerce', array($this, 'show_woocommerce_page')));
         }
-        $test = false;
+        $test = true;
         if ($test) {
             array_push($menu_items, array(__('test-page', 'wp-heyloyalty'), __('Test ', 'wp-heyloyalty'), 'hl-test', array($this, 'show_test_page')));
         }
@@ -126,7 +126,14 @@ class Admin
 
     public function show_front_page()
     {
-        //todo should show heyloyalty feed and latest actions.
+        $status = get_option('status');
+        $errors = get_option('errors');
+
+        if(is_array($status) && is_array($errors))
+            $status = array_merge($status,$errors);
+
+        ksort($status);
+        require __DIR__ . '/views/front.php';
     }
 
     public function show_settings_page()
@@ -180,8 +187,7 @@ class Admin
 
     public function show_test_page()
     {
-        $woo = new \WC_Order(15);
-        var_dump($woo->get_user());
+        $status = get_option('status');
         require __DIR__ . '/views/test.php';
     }
 
