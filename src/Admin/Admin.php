@@ -181,7 +181,7 @@ class Admin
         $woo = $this->plugin['woo'];
         require __DIR__ . '/views/woocommerce.php';
     }
-    
+
 
     public function ajax_handler()
     {
