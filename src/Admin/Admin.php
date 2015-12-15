@@ -65,7 +65,8 @@ class Admin
 
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),
-            array(__('Mappings', 'wp-heyloyalty'), __('Mappings', 'wp-heyloyalty'), 'hl-mappings', array($this, 'show_mapping_page'))
+            array(__('Mappings', 'wp-heyloyalty'), __('Mappings', 'wp-heyloyalty'), 'hl-mappings', array($this, 'show_mapping_page')),
+            array(__('Tools', 'wp-heyloyalty'), __('Tools', 'wp-heyloyalty'), 'hl-tools', array($this, 'show_tools_page'))
 
         );
         /**
@@ -88,6 +89,7 @@ class Admin
         register_setting('hl-settings', 'hl-settings');
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
+        register_setting('hl-tools','hl-tools');
     }
 
     public function last_visit($user_login, $user)
@@ -182,6 +184,24 @@ class Admin
         }
         $woo = $this->plugin['woo'];
         require __DIR__ . '/views/woocommerce.php';
+    }
+    public function show_tools_page()
+    {
+        $users = get_users();
+        $status = 'ok';
+        if (isset($_POST['action'])) {
+            switch($_POST['action'])
+            {
+                case 'create':
+                    break;
+                case 'update':
+                    break;
+                case 'delete':
+                    break;
+            }
+        }
+        require __DIR__ . '/views/tools.php';
+
     }
 
 
