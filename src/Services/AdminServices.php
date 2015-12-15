@@ -136,9 +136,11 @@ class AdminServices {
      */
     public function addHeyloyaltyMember($user_id)
     {
-
-        if(get_user_meta($user_id,'hl_permission',true) != 'on')
+        $field = $this->getPermissionField();
+        if(get_user_meta($user_id,$field,true) == '') {
+            $this->setError('error',$user_id.': permission field could not be found');
             return 0;
+        }
 
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
@@ -150,7 +152,7 @@ class AdminServices {
             $this->setStatus('created','user_id '.$user_id.' was created on list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError($user_id.': could nnot be created');
+            $this->setError('error',$user_id.': could not be created');
             return 0;
         }
 
@@ -165,9 +167,11 @@ class AdminServices {
      */
     public function updateHeyloyaltyMember($user_id)
     {
-        if(get_user_meta($user_id,'hl_permission',true) != 'on')
+        $field = $this->getPermissionField();
+        if(get_user_meta($user_id,$field,true) == '') {
+            $this->setError('error',$user_id.': permission field could not be found');
             return 0;
-
+        }
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
         $member_id = $this->getMemberID($user_id);
@@ -176,7 +180,7 @@ class AdminServices {
             $this->setStatus('updated','user_id '.$user_id.' was updated to list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError($user_id.': could not be updated');
+            $this->setError('error',$user_id.': could not be updated');
             return 0;
         }
         return $user_id;
@@ -198,7 +202,7 @@ class AdminServices {
             $this->setStatus('deleted','user_id '.$user_id.' was deleted from list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError($user_id.': could not be deleted');
+            $this->setError('error',$user_id.': could not be deleted');
             return 0;
         }
         return $user_id;
@@ -225,5 +229,12 @@ class AdminServices {
         $status = get_option('status');
         $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
         update_option('status',$status);
+    }
+
+    protected function getPermissionField()
+    {
+        $settings = get_option('hl_settings');
+        $permission = (isset($settings['hl_permission'])) ? $settings['hl_permission'] : null;
+        return $permission;
     }
 }

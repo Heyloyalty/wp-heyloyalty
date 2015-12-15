@@ -135,8 +135,10 @@ class Admin
 
     public function show_settings_page()
     {
+        $status = 'ok';
         if (isset($_POST['hl_settings'])) {
             $this->save_hl_settings($_POST['hl_settings']);
+
         }
 
         $opts = $this->plugin['options'];
