@@ -14,15 +14,11 @@ Wp-Heyloyal is a plugin for integrating with Heyloyalty an email markeing platfo
 
 This plugin makes the connection between your wordpress users and a Heyloyalty list.
 
-When a wordpress user is updated or created is will sync that user to your Heyloyalty list
+When a wordpress user is updated or created is will sync that user to your Heyloyalty list.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Input youe api key and api secret.
 4. Select a Heyloyal list and map the fields.
@@ -34,8 +30,3 @@ e.g.
 * Plugin goes in beta main functions is working.
 
 
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
