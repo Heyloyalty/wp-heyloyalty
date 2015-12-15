@@ -1,12 +1,21 @@
 === wp heyloyalty ===
+
 Contributors: amras
+
 Donate link: http://heyloyalty.com
+
 Tags: email, marketing, newsletter, woocommerce, e-commerce, sms, email marketing, send email
+
 Requires at least: 4.0.1
+
 Tested up to: 4.4
+
 Stable tag: 4.3
+
 License: GPLv2 or later
+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
 
 Wp-Heyloyal is a plugin for integrating with Heyloyalty an email markeing platform.
 
