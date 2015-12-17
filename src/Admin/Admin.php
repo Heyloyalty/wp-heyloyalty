@@ -122,6 +122,14 @@ class Admin
             //TODO
         }
     }
+    public function delete_user_in_heyloyalty($user_id)
+    {
+        try {
+            $response = $this->plugin['admin-services']->deleteHeyloyaltyMember($user_id);
+        } catch (\Exception $e) {
+            //TODO
+        }
+    }
 
     public function show_front_page()
     {
@@ -131,7 +139,9 @@ class Admin
         if(is_array($status) && is_array($errors))
             $status = array_merge($status,$errors);
 
-        ksort($status);
+        krsort($status);
+        $status = array_slice($status,0,20);
+
         require __DIR__ . '/views/front.php';
     }
 
@@ -185,18 +195,28 @@ class Admin
         $woo = $this->plugin['woo'];
         require __DIR__ . '/views/woocommerce.php';
     }
+
+    /**
+     * Show tools page.
+     */
     public function show_tools_page()
     {
         $users = get_users();
         $status = 'ok';
-        if (isset($_POST['action'])) {
+        if (isset($_POST['action']) && isset($_POST['user'])) {
             switch($_POST['action'])
             {
                 case 'create':
+                    $this->add_user_to_heyloyalty($_POST['user']);
+                    $status = 'created';
                     break;
                 case 'update':
+                    $this->update_user_in_heyloyalty($_POST['user']);
+                    $status = 'updated';
                     break;
                 case 'delete':
+                    $this->delete_user_in_heyloyalty($_POST['user']);
+                    $status = 'deleted';
                     break;
             }
         }
@@ -204,7 +224,9 @@ class Admin
 
     }
 
-
+    /**
+     * Handler for wordpress ajax calls
+     */
     public function ajax_handler()
     {
         // get action
