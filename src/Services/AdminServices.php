@@ -137,8 +137,9 @@ class AdminServices {
     public function addHeyloyaltyMember($user_id)
     {
         $field = $this->getPermissionField();
+        $user = $this->getUser($user_id);
         if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error',$user_id.': permission field could not be found');
+            $this->setError('error','permission field could not be found');
             return 0;
         }
 
@@ -149,10 +150,10 @@ class AdminServices {
             $response = $this->HlServices->createMember($params,$list_id);
             delete_user_meta($user_id,'member_id');
             $response = add_user_meta($user_id,'member_id',$response['id'],true);
-            $this->setStatus('created','user_id '.$user_id.' was created on list '.$list_id);
+            $this->setStatus('created',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user_id.': could not be created');
+            $this->setError('error',$user->user_email.': could not be created');
             return 0;
         }
 
@@ -168,8 +169,9 @@ class AdminServices {
     public function updateHeyloyaltyMember($user_id)
     {
         $field = $this->getPermissionField();
+        $user = $this->getUser($user_id);
         if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error',$user_id.': permission field could not be found');
+            $this->setError('error','permission field could not be found');
             return 0;
         }
         $list_id = $this->getListID();
@@ -177,10 +179,10 @@ class AdminServices {
         $member_id = $this->getMemberID($user_id);
         try{
             $response = $this->HlServices->updateMember($params,$list_id,$member_id);
-            $this->setStatus('updated','user_id '.$user_id.' was updated to list '.$list_id);
+            $this->setStatus('updated',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user_id.': could not be updated');
+            $this->setError('error',$user->user_email.': could not be updated');
             return 0;
         }
         return $user_id;
@@ -195,14 +197,15 @@ class AdminServices {
     public function deleteHeyloyaltyMember($user_id)
     {
         $member_id = $this->getMemberID($user_id);
+        $user = $this->getUser($user_id);
         $list_id = $this->getListID();
 
         try{
             $response = $this->HlServices->deleteMember($list_id,$member_id);
-            $this->setStatus('deleted','user_id '.$user_id.' was deleted from list '.$list_id);
+            $this->setStatus('deleted',$user->user_email.' from list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user_id.': could not be deleted');
+            $this->setError('error',$user->user_email.': could not be deleted');
             return 0;
         }
         return $user_id;
@@ -236,5 +239,9 @@ class AdminServices {
         $settings = get_option('hl_settings');
         $permission = (isset($settings['hl_permission'])) ? $settings['hl_permission'] : null;
         return $permission;
+    }
+    protected function getUser($user_id)
+    {
+        return get_user_by('id',$user_id);
     }
 }
