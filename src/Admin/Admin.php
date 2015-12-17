@@ -65,7 +65,8 @@ class Admin
 
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),
-            array(__('Mappings', 'wp-heyloyalty'), __('Mappings', 'wp-heyloyalty'), 'hl-mappings', array($this, 'show_mapping_page'))
+            array(__('Mappings', 'wp-heyloyalty'), __('Mappings', 'wp-heyloyalty'), 'hl-mappings', array($this, 'show_mapping_page')),
+            array(__('Tools', 'wp-heyloyalty'), __('Tools', 'wp-heyloyalty'), 'hl-tools', array($this, 'show_tools_page'))
 
         );
         /**
@@ -88,6 +89,7 @@ class Admin
         register_setting('hl-settings', 'hl-settings');
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
+        register_setting('hl-tools','hl-tools');
     }
 
     public function last_visit($user_login, $user)
@@ -120,6 +122,14 @@ class Admin
             //TODO
         }
     }
+    public function delete_user_in_heyloyalty($user_id)
+    {
+        try {
+            $response = $this->plugin['admin-services']->deleteHeyloyaltyMember($user_id);
+        } catch (\Exception $e) {
+            //TODO
+        }
+    }
 
     public function show_front_page()
     {
@@ -129,7 +139,9 @@ class Admin
         if(is_array($status) && is_array($errors))
             $status = array_merge($status,$errors);
 
-        ksort($status);
+        krsort($status);
+        $status = array_slice($status,0,20);
+
         require __DIR__ . '/views/front.php';
     }
 
@@ -184,7 +196,37 @@ class Admin
         require __DIR__ . '/views/woocommerce.php';
     }
 
+    /**
+     * Show tools page.
+     */
+    public function show_tools_page()
+    {
+        $users = get_users();
+        $status = 'ok';
+        if (isset($_POST['action']) && isset($_POST['user'])) {
+            switch($_POST['action'])
+            {
+                case 'create':
+                    $this->add_user_to_heyloyalty($_POST['user']);
+                    $status = 'created';
+                    break;
+                case 'update':
+                    $this->update_user_in_heyloyalty($_POST['user']);
+                    $status = 'updated';
+                    break;
+                case 'delete':
+                    $this->delete_user_in_heyloyalty($_POST['user']);
+                    $status = 'deleted';
+                    break;
+            }
+        }
+        require __DIR__ . '/views/tools.php';
 
+    }
+
+    /**
+     * Handler for wordpress ajax calls
+     */
     public function ajax_handler()
     {
         // get action

@@ -46,4 +46,8 @@ The plugin add support for woocommerce by adding extra field you can use like la
 = 0.5 =
 * Plugin goes in beta main functions is working.
 
+== 0.6 ==
+* Added tools menu
+* Added styling to status
+
 
