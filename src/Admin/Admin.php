@@ -33,7 +33,9 @@ class Admin
         $provider = new AdminServiceProvider();
         $provider->register($this->plugin);
     }
-
+    /**
+     * action hooks
+     */
     protected function add_hooks()
     {
         add_action('init', array($this, 'register'));
@@ -46,6 +48,8 @@ class Admin
         add_action('edit_user_profile_update', array($this, 'save_permission'));
         add_action('wp_login', array($this, 'last_visit'),10,2);
         add_action('woocommerce_payment_complete', array($this, 'last_buy'),10,1);
+        add_action( 'woocommerce_after_order_notes', array($this,'add_newsletter_checkbox'),10,1 );
+        add_action( 'woocommerce_checkout_update_order_meta', 'save_newsletter_field',10,1 );
     }
 
     protected function add_ajax_hooks()
@@ -83,7 +87,9 @@ class Admin
         }
 
     }
-
+    /**
+     * register hooks
+     */
     public function register()
     {
         register_setting('hl-settings', 'hl-settings');
@@ -221,7 +227,6 @@ class Admin
             }
         }
         require __DIR__ . '/views/tools.php';
-
     }
 
     /**
@@ -256,22 +261,76 @@ class Admin
         wp_enqueue_style('hl-admin-css');
         wp_enqueue_script('jquery-ui-draggable', false, array('jquery'));
         wp_enqueue_script('jquery-ui-droppable', false, array('jquery'));
-
         wp_localize_script('hl-ajax-request', 'HLajax', array('ajaxurl' => admin_url('admin-ajax.php')));
     }
 
+    /**
+     * adds Heyloyalty permission field to user profil.
+     * @param $user
+     */
     public function add_permission_field($user)
     {
         $userID = $user->ID;
         require __DIR__ . '/partials/permission.php';
     }
 
+    /**
+     * save permisson on user profile page.
+     * @param $user_id
+     */
     public function save_permission($user_id)
     {
         if (current_user_can('edit_user', $user_id)) {
             update_user_meta($user_id, 'hl_permission', $_POST['hl_permission']);
         }
     }
+
+    /**
+     * adds newsletter checkbox to woocommerce checkout flow.
+     */
+    public function add_newsletter_checkbox( $checkout ) {
+        global $current_user;
+        get_current_user();
+        $permission = get_user_meta($current_user->ID,'hl_permission',true);
+
+        if($permission != 'on')
+        {
+        echo '<div id="news_permission">';
+
+        woocommerce_form_field( 'newsletter_field', array(
+            'type'          => 'checkbox',
+            'class'         => array('my-field-class form-row-wide'),
+            'label'         => __('Ja tak til nyhedsbrev'),
+            'placeholder'   => __('Enter something'),
+        ), $checkout->get_value( 'newsletter_field' ));
+
+        echo '</div>';
+        }
+
+    }
+    /**
+     * validate newsletter field on woocommerce checkout flow
+     */
+    function validate_newsletter_field() {
+        // Check if set, if its not set add an error.
+        //if ( ! $_POST['newsletter_field'] )
+        //  wc_add_notice( __( 'Please enter something into this new shiny field.' ), 'error' );
+    }
+
+    /**
+     * save newsletter value ti hl permission on process order
+     * if there is a customer loggin
+     */
+    function save_newsletter_field( $order_id ) {
+        if ( ! empty( $_POST['newsletter_field'] ) ) {
+            global $current_user;
+            get_currentuserinfo();
+
+            if(isset($current_user))
+            update_user_meta( $current_user->ID, 'hl_permission', 'on');
+        }
+    }
+
 
     protected function save_hl_settings($settings)
     {
@@ -337,7 +396,8 @@ class Admin
             'description',
             'website',
             'email',
-            'user_registered'
+            'user_registered',
+            'hl_permission'
         );
         return $wp_fields;
     }
