@@ -90,6 +90,7 @@ class AdminServices {
             //TODO find another way of injecting user or other specifik fields.
             if($key == 'user_registered')
                 $mapped[$value] = $this->getRegisteredDate($user_id);
+
         }
 
         return $mapped;
