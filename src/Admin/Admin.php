@@ -20,7 +20,7 @@ class Admin
 
     public function init()
     {
-        $this->register_services();
+        //$this->register_services();
 
         load_plugin_textdomain('wp-heyloyalty', null, $this->plugin->dir() . '/languages');
 
@@ -209,6 +209,7 @@ class Admin
     {
         $users = get_users();
         $status = 'ok';
+        $userMeta = $this->plugin['admin-services']->getUserFields();
         if (isset($_POST['action']) && isset($_POST['user'])) {
             switch($_POST['action'])
             {
@@ -318,7 +319,7 @@ class Admin
     }
 
     /**
-     * save newsletter value ti hl permission on process order
+     * save newsletter value to hl permission on process order
      * if there is a customer loggin
      */
     function save_newsletter_field( $order_id ) {
@@ -326,8 +327,17 @@ class Admin
             global $current_user;
             get_currentuserinfo();
 
-            if(isset($current_user))
-            update_user_meta( $current_user->ID, 'hl_permission', 'on');
+            if(isset($current_user)) {
+                update_user_meta($current_user->ID, 'hl_permission', 'on');
+            }else{
+                //check if user excist in wp or create new user
+
+                error_log($_POST);
+                var_dump($_POST);
+
+
+
+            }
         }
     }
 

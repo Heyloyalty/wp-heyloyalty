@@ -31,4 +31,5 @@
                 </form>
         </div>
     </div>
+    <div><?php echo $userMeta ?></div>
 </div>

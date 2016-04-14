@@ -62,6 +62,34 @@ class AdminServices {
         return null;
     }
 
+    /**
+     *
+     */
+    public function getUserFields()
+    {
+        $blacklist = [
+            'rich_editing',
+            'comment_shortscuts',
+            'admin_color',
+            'use_ssl',
+            'show_admin_bar_front',
+            'wp_capabilities',
+            'wp_user_level',
+            'dismissed_wo_pointers',
+            'show_welcome_panel',
+            'wp_dashboard_quick_press_last_post_id',
+            'manageedit-shop_ordercolumnshidden',
+            'wp_user-settings',
+            'wp_user-settings-time',
+            'manageedit-nf_subcolumnshidden',
+            '_woocommerce_persistent_cart',
+            'session_tokens'
+        ];
+
+        global $wpdb;
+        $userMetaKeys = $wpdb->get_results('SELECT meta_key FROM wp_usermeta');
+        return $userMetaKeys;
+    }
 
     /**
      * Map user fields.
