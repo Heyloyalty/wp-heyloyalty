@@ -69,13 +69,13 @@ class AdminServices {
     {
         $blacklist = [
             'rich_editing',
-            'comment_shortscuts',
+            'comment_shortcuts',
             'admin_color',
             'use_ssl',
             'show_admin_bar_front',
             'wp_capabilities',
             'wp_user_level',
-            'dismissed_wo_pointers',
+            'dismissed_wp_pointers',
             'show_welcome_panel',
             'wp_dashboard_quick_press_last_post_id',
             'manageedit-shop_ordercolumnshidden',
@@ -83,12 +83,21 @@ class AdminServices {
             'wp_user-settings-time',
             'manageedit-nf_subcolumnshidden',
             '_woocommerce_persistent_cart',
-            'session_tokens'
+            'session_tokens',
+            'member_id',
+            'billing_email'
         ];
 
         global $wpdb;
         $userMetaKeys = $wpdb->get_results('SELECT meta_key FROM wp_usermeta');
-        return $userMetaKeys;
+        $metaKeys = [];
+        foreach ($userMetaKeys as $key) {
+            if(!in_array($key->meta_key,$metaKeys) && !in_array($key->meta_key,$blacklist))
+            {
+                array_push($metaKeys,$key->meta_key);
+            }
+        }
+        return $metaKeys;
     }
 
     /**

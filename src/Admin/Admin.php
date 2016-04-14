@@ -20,19 +20,13 @@ class Admin
 
     public function init()
     {
-        //$this->register_services();
 
         load_plugin_textdomain('wp-heyloyalty', null, $this->plugin->dir() . '/languages');
 
         $this->add_hooks();
         $this->add_ajax_hooks();
     }
-
-    protected function register_services()
-    {
-        $provider = new AdminServiceProvider();
-        $provider->register($this->plugin);
-    }
+    
     /**
      * action hooks
      */
@@ -65,7 +59,7 @@ class Admin
      */
     public function menu()
     {
-        add_utility_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/assets/img/menu-icon.png');
+        add_menu_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/assets/img/menu-icon.png');
 
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),
@@ -180,14 +174,7 @@ class Admin
         } catch (\Exception $e) {
             //TODO handle exception.
         }
-        $user_fields = $this->wp_fields();
-        /**
-         * Check if WooCommerce is active
-         **/
-        if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-            $user_fields = array_merge($user_fields, $this->woo_fields());
-        }
-
+        $user_fields = $this->plugin['admin-services']->getUserFields();
         $mappings = $this->plugin['mappings'];
         require __DIR__ . '/views/mappings.php';
     }

@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Heyloyalty\\Admin\\Admin' => $baseDir . '/src/Admin/Admin.php',
-    'Heyloyalty\\Admin\\AdminServiceProvider' => $baseDir . '/src/Admin/AdminServiceProvider.php',
     'Heyloyalty\\DI\\Container' => $baseDir . '/src/DI/Container.php',
     'Heyloyalty\\DI\\ServiceProviderInterface' => $baseDir . '/src/DI/ServiceProviderInterface.php',
     'Heyloyalty\\IPlugin' => $baseDir . '/src/IPlugin.php',
