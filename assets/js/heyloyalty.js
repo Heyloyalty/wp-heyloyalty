@@ -1,4 +1,4 @@
-jQuery(document).ready(function(){
+jQuery(document).ready(function () {
 
     var dropItem = jQuery('.droppable');
     var dragItem = jQuery('.draggable');
@@ -6,24 +6,71 @@ jQuery(document).ready(function(){
     var hidden = jQuery('#mapped-fields');
     var mappedFields = [];
     var removedFields = [];
+    var keyFormatValue = ''; //string container for mapped field
 
 
+    /**
+     * Drop event handler for heyloyalty fields.
+     */
     dropItem.droppable({
-        accept : ".draggable",
-        drop : function (event,ui){
-            if(jQuery(this).find('.draggable').length <= 0) {
+        accept: ".draggable",
+        drop: function (event, ui) {
+            if (jQuery(this).find(dragItem).length <= 0) {
+
+                var format = jQuery(ui.draggable).data('format');
+                var hl_name = jQuery(ui.draggable).data('name');
+                var wp_name = jQuery(this).data('name');
+
+                //remove css when hl field is dropped onto wp field.
                 jQuery(ui.draggable).detach().css({top: 0, left: 0}).appendTo(this);
-                var keyValue = jQuery(this).data('name')+"="+jQuery(ui.draggable).text();
-                mappedFields.push(keyValue);
+                jQuery(ui.draggable).find('span').remove();
+
+                //if multi choice add new element to hl container;
+                if(format == 'multi') {
+                    hlContainer.append('<div class="draggable" data-name="'+hl_name+'" data-format="'+format+'"><label>'+hl_name+'</label><img class="map-cancel" style="float:right; margin:3px 3px;" src="/wp-content/plugins/wp-heyloyalty/assets/img/badge_cancel_32.png"/><div class="format"><span style="font-size:11px">'+"format: "+format+'</span></div>');
+
+                    //set draggable on elements
+                    jQuery('.draggable').draggable({
+                        revert:'invalid',
+                        drag:function(event,ui){
+                        }
+                    });
+                }
+
+                //when a wp and hl fields is mapped, get values and hl format into string container
+                keyFormatValue = wp_name + "=" + format + "=" + hl_name;
+                mappedFields.push(keyFormatValue);
+
+                //update mapped fields on hidden field.
                 hidden.val(mappedFields);
-                jQuery(ui.draggable).on('click',function(){
-                    var keyValue = jQuery(this).parent().data('name')+"="+jQuery(this).text();
-                    var index = mappedFields.indexOf(keyValue);
-                    removedFields = (index > -1) ? mappedFields.splice(index,1) : mappedFields;
-                    hidden.val(mappedFields);
-                    jQuery(this).detach().css({top:0,left:0}).appendTo('.hl-container');
+
+                /**
+                 * Click event.
+                 * When a heyloyalty field is inside the wordpress user field it can be removed by clicking
+                 * on the minus button.
+                 */
+                jQuery(ui.draggable).on('click', function () {
+
+                    var format = jQuery(ui.draggable).data('format');
+
+                    //when a wp and hl fields is mapped, get values and hl format into string container
+                    keyFormatValue = jQuery(this).parent().data('name') + "=" + format + "=" + jQuery(ui.draggable).data('name');
+
+                    //get index for field in array
+                    var index = mappedFields.indexOf(keyFormatValue);
+
+                    //remove field from array
+                    removedFields = (index > -1) ? mappedFields.splice(index, 1) : mappedFields;
+
+                    //update mapped fields on hidden field
+                    hidden.val(removedFields);
+
+                    //remove css from element and add it to the hl container.
+                    jQuery(this).detach().css({top: 0, left: 0}).appendTo(hlContainer);
+                    jQuery(this).find('.format').append('<span style="font-size:11px">format: ' + format + '</span>');
                 });
             }
         }
     });
+    /** end function **/
 });

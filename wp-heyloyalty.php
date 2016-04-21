@@ -45,10 +45,19 @@ function __load_wp_heyloyalty() {
 	// fetch instance and store in global
 	$GLOBALS['wp_heyloyalty'] = wp_heyloyalty();
 	// register activation hook
-	//register_activation_hook( __FILE__, array( 'Heyloyalty\\Admin\\Installer', 'run' ) );
+	register_activation_hook( __FILE__, "__activate_wp_heyloyalty_plugin" );
+	
 }
 function __load_wp_heyloyalty_fallback() {
     //todo
+}
+function __activate_wp_heyloyalty_plugin() {
+	$plugin_dir = plugin_dir_path( __FILE__ ) . 'hl-webhooks.php';
+	$content_dir = WP_CONTENT_DIR.'/hl-webhooks.php';
+
+	if (!copy($plugin_dir, $content_dir)) {
+
+	}
 }
 if( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 	__load_wp_heyloyalty();
