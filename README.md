@@ -53,5 +53,9 @@ The plugin add support for woocommerce by adding extra field you can use like la
 == 1.0 ==
 * Updated method for getting fields
 * Refactored plugin service provider
+* Support for all Heyloyalty fields
+* Wordpress help pages (in upper right corner)
+* Heyloyalty Webhook handler for unsubscribe.
+* Install method for setting up webhook handler.
 
 
