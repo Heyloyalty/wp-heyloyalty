@@ -17,7 +17,7 @@
                             </th>
 
                             <tr>
-                                <td><label><?php _e('Choose a list', 'choose-list'); ?></label></td>
+                                <td><label><?php _e('Choose a list from your Heyloyalty account', 'choose-list'); ?></label></td>
                                 <td>
                                     <select id="hl_lists" name="hl_mappings[list_id]">
                                         <option><?php _e('select list', 'select-list'); ?></option>

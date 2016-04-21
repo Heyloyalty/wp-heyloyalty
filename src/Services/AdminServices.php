@@ -48,6 +48,11 @@ class AdminServices {
         return null;
     }
 
+    public function getDate($string)
+    {
+        return Carbon::parse($string)->toDateString();
+    }
+
     /**
      * Get heyloyalty member id
      *
@@ -62,6 +67,59 @@ class AdminServices {
         return null;
     }
 
+    /**
+     *
+     */
+    public function getUserFields()
+    {
+        $blacklist = [
+            'rich_editing',
+            'comment_shortcuts',
+            'admin_color',
+            'use_ssl',
+            'show_admin_bar_front',
+            'wp_capabilities',
+            'wp_user_level',
+            'dismissed_wp_pointers',
+            'show_welcome_panel',
+            'wp_dashboard_quick_press_last_post_id',
+            'manageedit-shop_ordercolumnshidden',
+            'wp_user-settings',
+            'wp_user-settings-time',
+            'manageedit-nf_subcolumnshidden',
+            '_woocommerce_persistent_cart',
+            'session_tokens',
+            'member_id',
+            'billing_email'
+        ];
+
+        global $wpdb;
+        $userMetaKeys = $wpdb->get_results('SELECT meta_key FROM wp_usermeta');
+        $metaKeys = [];
+        foreach ($userMetaKeys as $key) {
+            if(!in_array($key->meta_key,$metaKeys) && !in_array($key->meta_key,$blacklist))
+            {
+                array_push($metaKeys,$key->meta_key);
+            }
+        }
+        return $metaKeys;
+    }
+
+    /**
+     * save choice options.
+     * @param $fields
+     */
+    public function saveListFieldChoiceOptions($fields)
+    {
+        $choices = [];
+        foreach ($fields as $key => $value) {
+            if($value['format'] == 'choice' || $value['format'] == 'multi' || $value['format'] == 'shop')
+            {
+                $choices[$key] = $value;
+            }
+        }
+        update_option('choice_options',$choices);
+    }
 
     /**
      * Map user fields.
@@ -73,27 +131,52 @@ class AdminServices {
     {
         $mappings = get_option('hl_mappings');
 
-        if(!isset($mappings['fields']))
+        if(!isset($mappings['fields']) && !isset($mappings['formats']))
             return array();
 
-        $mappings = $mappings['fields'];
+        $fields = $mappings['fields'];
+        $formats = $mappings['formats'];
 
         if(!is_array($metadata))
             return array();
 
         $mapped = [];
-        foreach($mappings as $key => $value)
+        foreach($fields as $key => $value)
         {
             if(isset($metadata[$key][0]))
             $mapped[$value] = $metadata[$key][0];
 
-            //TODO find another way of injecting user or other specifik fields.
             if($key == 'user_registered')
                 $mapped[$value] = $this->getRegisteredDate($user_id);
 
+            switch ($formats[$value])
+            {
+                case 'date':
+                $mapped[$value] = $this->getDate($metadata[$key][0]);
+                    break;
+                case 'choice':
+                case 'multi':
+                case 'shop':
+                    $mapped[$value] = $this->getOptionIds($value,$metadata[$key][0]);
+                    break;
+            }
         }
-
+        
         return $mapped;
+    }
+
+    /**
+     * @param $field
+     * @param $values
+     * @return mixed
+     */
+    protected function getOptionIds($field, $values)
+    {
+        $fields = get_option('choice_options');
+
+        $options = $fields[$field];
+
+        return array_keys($options['options'],$values);
     }
 
     /**
@@ -154,7 +237,7 @@ class AdminServices {
             $this->setStatus('created',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user->user_email.': could not be created');
+            $this->setError('error',$user->user_email.'-'.$e->getMessage());
             return 0;
         }
 
@@ -183,7 +266,7 @@ class AdminServices {
             $this->setStatus('updated',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user->user_email.': could not be updated');
+            $this->setError('error',$user->user_email.'-'.$e->getMessage());
             return 0;
         }
         return $user_id;
@@ -206,7 +289,8 @@ class AdminServices {
             $this->setStatus('deleted',$user->user_email.' from list '.$list_id);
         }catch (\Exception $e)
         {
-            $this->setError('error',$user->user_email.': could not be deleted');
+            $e->detail->ExceptionDetail->InnerException->Message;
+            $this->setError('error',$user->user_email.'-'.$e->getMessage());
             return 0;
         }
         return $user_id;
@@ -216,7 +300,7 @@ class AdminServices {
      * Set error
      * @param $message
      */
-    protected function setError($type = 'error',$message)
+    public function setError($type = 'error',$message)
     {
         $errors = get_option('errors');
         $errors['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
@@ -228,7 +312,7 @@ class AdminServices {
      * @param $type
      * @param $message
      */
-    protected function setStatus($type,$message)
+    public function setStatus($type,$message)
     {
         $status = get_option('status');
         $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);

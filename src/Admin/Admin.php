@@ -12,6 +12,14 @@ class Admin
      * @var iPlugin @plugin
      */
     private $plugin;
+    public $tabs = array(
+        // The assoc key represents the ID
+        // It is NOT allowed to contain spaces
+        'EXAMPLE' => array(
+            'title'   => 'TEST ME!'
+        ,'content' => 'FOO'
+        )
+    );
 
     public function __construct(IPlugin $plugin)
     {
@@ -20,19 +28,13 @@ class Admin
 
     public function init()
     {
-        $this->register_services();
 
         load_plugin_textdomain('wp-heyloyalty', null, $this->plugin->dir() . '/languages');
 
         $this->add_hooks();
         $this->add_ajax_hooks();
     }
-
-    protected function register_services()
-    {
-        $provider = new AdminServiceProvider();
-        $provider->register($this->plugin);
-    }
+    
     /**
      * action hooks
      */
@@ -65,7 +67,7 @@ class Admin
      */
     public function menu()
     {
-        add_utility_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/assets/img/menu-icon.png');
+        add_menu_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/assets/img/menu-icon.png');
 
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),
@@ -84,6 +86,7 @@ class Admin
             $page = add_submenu_page('wp-heyloyalty/wp-heyloyalty.php', $item[0], $item[1], 'manage_options', $item[2], $item[3]);
             add_action('admin_print_styles-' . $page, array($this, 'load_assets'));
             add_action('admin_enqueue_scripts-' . $page, array($this, 'load_assets'));
+            add_action( "load-".$page, array( $this, 'add_tabs' ), 20 );
         }
 
     }
@@ -96,6 +99,42 @@ class Admin
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
         register_setting('hl-tools','hl-tools');
+    }
+
+    /**
+     * 
+     */
+    public function add_tabs()
+    {
+        require(__DIR__.'/views/help-screens/tools.php');
+        require(__DIR__.'/views/help-screens/settings.php');
+        require(__DIR__.'/views/help-screens/mappings.php');
+        require(__DIR__.'/views/help-screens/woocommerce.php');
+        $screen = get_current_screen();
+        $tabs = null;
+        switch ($screen->base)
+        {
+            case 'wp-heyloyalty_page_hl-tools':
+                $tabs = $tools;
+                break;
+            case 'wp-heyloyalty_page_hl-mappings':
+                $tabs = $mappings;
+                break;
+            case 'wp-heyloyalty_page_hl-settings':
+                $tabs = $settings;
+                break;
+            case 'wp-heyloyalty_page_hl-woocommerce':
+                $tabs = $woo;
+                break;
+        }
+
+        foreach ($tabs as $tab) {
+            $screen->add_help_tab(array(
+                'id' => $tab['id'],
+                'title' => $tab['title'],
+                'content' => $tab['content']
+            ));
+        }
     }
 
     public function last_visit($user_login, $user)
@@ -116,7 +155,8 @@ class Admin
         try {
             $response = $this->plugin['admin-services']->addHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
-            //TODO
+            //register error to show on front page.
+            $this->plugin['admin-services']->setError('error',$e->getMessage());
         }
     }
 
@@ -125,7 +165,8 @@ class Admin
         try {
             $response = $this->plugin['admin-services']->updateHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
-            //TODO
+            //register error to show on front page.
+            $this->plugin['admin-services']->setError('error',$e->getMessage());
         }
     }
     public function delete_user_in_heyloyalty($user_id)
@@ -133,7 +174,8 @@ class Admin
         try {
             $response = $this->plugin['admin-services']->deleteHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
-            //TODO
+            //register error to show on front page.
+            $this->plugin['admin-services']->setError('error',$e->getMessage());
         }
     }
 
@@ -164,31 +206,41 @@ class Admin
 
     }
 
+    /**
+     * Mapping page handler.
+     */
     public function show_mapping_page()
     {
         if (isset($_POST['option_page']) && $_POST['option_page'] == 'hl_mappings') {
             $str = $_POST['mapped'];
-            preg_match_all("/([^,= ]+)=([^,= ]+)/", $str, $r);
-            $result = array_combine($r[1], $r[2]);
+
+            //get hl-key, hl-format and wp-key from string container.
+            preg_match_all("/([^,= ]+)=([^,= ]+)=([^,= ]+)/", $str, $r);
+
+            //combine wp-key and hl-key into a key/value pair array.
+            $result = array_combine($r[1], $r[3]);
+
+            //combine hl-key and hl-format info key/value pair array.
+            $fieldsFormats = array_combine($r[3],$r[2]);
+
             $mappings = get_option('hl_mappings');
             $mappings['fields'] = $result;
+            $mappings['formats'] = $fieldsFormats;
+
+            //update mapping options
             update_option('hl_mappings', $mappings);
         }
 
         try {
             $lists = $this->plugin['heyloyalty-services']->getLists();
         } catch (\Exception $e) {
-            //TODO handle exception.
-        }
-        $user_fields = $this->wp_fields();
-        /**
-         * Check if WooCommerce is active
-         **/
-        if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-            $user_fields = array_merge($user_fields, $this->woo_fields());
-        }
 
+            //register error to show on front page.
+            $this->plugin['admin-services']->setError('error',$e->getMessage());
+        }
+        $user_fields = $this->plugin['admin-services']->getUserFields();
         $mappings = $this->plugin['mappings'];
+
         require __DIR__ . '/views/mappings.php';
     }
 
@@ -234,7 +286,7 @@ class Admin
      */
     public function ajax_handler()
     {
-        // get action
+        // get handle
         $handle = $_POST['handle'];
 
         switch ($handle) {
@@ -318,16 +370,19 @@ class Admin
     }
 
     /**
-     * save newsletter value ti hl permission on process order
+     * save newsletter value to hl permission on process order
      * if there is a customer loggin
      */
     function save_newsletter_field( $order_id ) {
         if ( ! empty( $_POST['newsletter_field'] ) ) {
-            global $current_user;
-            get_currentuserinfo();
+            $current_user = wp_get_current_user();
 
-            if(isset($current_user))
-            update_user_meta( $current_user->ID, 'hl_permission', 'on');
+            if(isset($current_user)) {
+                update_user_meta($current_user->ID, 'hl_permission', 'on');
+            }else{
+                //TODO create new user and update info
+                error_log($_POST);
+            }
         }
     }
 
@@ -345,60 +400,18 @@ class Admin
     protected function getListForMapping($list_id)
     {
         try {
-            $mappings = array('first_name' => 'firstname', 'last_name' => 'lastname', 'email' => 'email', 'billing_phone' => 'mobile');
-            $response = $this->plugin['heyloyalty-services']->getList($list_id);
-            update_option('hl_mappings', array('list_id' => $list_id, 'fields' => $mappings));
-            $response = json_encode($response);
 
+            $response = $this->plugin['heyloyalty-services']->getList($list_id);
+            $this->plugin['admin-services']->saveListFieldChoiceOptions($response['fields']);
+            $mappings = get_option('hl_mappings');
+            $mappings['list_id'] = $list_id;
+            update_option('hl_mappings', $mappings);
+            $response = json_encode($response);
 
         } catch (\Exception $e) {
             $response = array('status' => false);
         }
 
         return $response;
-    }
-
-    protected function woo_fields()
-    {
-        $woo_fields = array(
-            'billing_first_name',
-            'billing_last_name',
-            'billing_company',
-            'billing_address_1',
-            'billing_address_2',
-            'billing_city',
-            'billing_postalcode',
-            'billing_country',
-            'billing_state',
-            'billing_phone',
-            'billing_email',
-            'shipping_first_name',
-            'shipping_last_name',
-            'shipping_company',
-            'shipping_address_1',
-            'shipping_address_2',
-            'shipping_city',
-            'shipping_postalcode',
-            'shipping_country',
-            'shipping_state',
-            'hl_last_visit',
-            'hl_last_buy'
-        );
-        return $woo_fields;
-    }
-
-    protected function wp_fields()
-    {
-        $wp_fields = array(
-            'nickname',
-            'first_name',
-            'last_name',
-            'description',
-            'website',
-            'email',
-            'user_registered',
-            'hl_permission'
-        );
-        return $wp_fields;
     }
 }

@@ -31,14 +31,14 @@ The plugin add support for woocommerce by adding extra field you can use like la
 
 1. Upload the plugin files to the `/wp-content/plugins/` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Input youe api key and api secret.
+3. Input your api key and api secret.
 4. Select a Heyloyal list and map the fields.
 
 == Update ==
 
 1. deactivate the plugin.
 2. override old files with the new files.
-3. activate teh plugin.
+3. activate the plugin.
 
 
 == Changelog ==
@@ -49,5 +49,13 @@ The plugin add support for woocommerce by adding extra field you can use like la
 == 0.6 ==
 * Added tools menu
 * Added styling to status
+
+== 1.0 ==
+* Updated method for getting fields
+* Refactored plugin service provider
+* Support for all Heyloyalty fields
+* Wordpress help pages (in upper right corner)
+* Heyloyalty Webhook handler for unsubscribe.
+* Install method for setting up webhook handler.
 
 

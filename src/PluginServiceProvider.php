@@ -6,6 +6,8 @@ namespace Heyloyalty;
 use Heyloyalty\Admin\Admin;
 use Heyloyalty\DI\Container;
 use Heyloyalty\DI\ServiceProviderInterface;
+use Heyloyalty\Services\AdminServices;
+use Heyloyalty\Services\HeyloyaltyServices;
 
 class PluginServiceProvider implements ServiceProviderInterface
 {
@@ -38,6 +40,14 @@ class PluginServiceProvider implements ServiceProviderInterface
 
         $container['admin'] = function ($app) {
             return new Admin($app);
+        };
+    
+        $container['heyloyalty-services'] = function($container) {
+            return new HeyloyaltyServices();
+        };
+    
+        $container['admin-services'] = function($app) {
+            return new AdminServices();
         };
     }
 
