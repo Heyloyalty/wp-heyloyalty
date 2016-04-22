@@ -243,7 +243,6 @@ class AdminServices {
         $metadata = get_user_meta($user_id);
         $params = $this->mapUserFields($metadata,$user_id);
         $params['email'] = $email;
-var_dump($params);
         return $params;
     }
 

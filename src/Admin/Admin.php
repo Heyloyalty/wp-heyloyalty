@@ -310,6 +310,7 @@ class Admin
     {
         $users = get_users();
         $status = 'ok';
+        $fields = json_encode(get_option('choice_options'));
         if (isset($_POST['action']) && isset($_POST['user'])) {
             switch($_POST['action'])
             {

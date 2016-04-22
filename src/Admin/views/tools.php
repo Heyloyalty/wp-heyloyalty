@@ -31,4 +31,26 @@
                 </form>
         </div>
     </div>
+    <div class="stb-row">
+        <div class="stb-col-two-third">
+
+            <h2><?php _e('Shop, choice and multi fields explore', 'wp-heyloyalty'); ?></h2>
+                <script> var fields = <?php echo $fields ?></script>
+            <table class="form-table">
+                <tr>
+                    <td>
+                        <div class="fields-container"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="fields-info-container">
+                            <ul class="field-info" style="display:none;"></ul>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
 </div>
