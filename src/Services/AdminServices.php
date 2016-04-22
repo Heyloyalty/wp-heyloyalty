@@ -1,11 +1,37 @@
 <?php
-
+/*
+ * This file is part of wp-heyloyalty.
+ *
+ * Copyright (c) 2015 Heyloyalty.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is furnished
+ * to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 namespace Heyloyalty\Services;
 
 use Carbon\Carbon;
 use Heyloyalty\Services\HeyloyaltyServices;
 
+/**
+ * Class AdminServices
+ * @package Heyloyalty\Services
+ */
 class AdminServices {
 
     protected $HlServices;
@@ -47,7 +73,12 @@ class AdminServices {
 
         return null;
     }
-
+    
+    /**
+     * Get date.
+     * @param $string
+     * @return string
+     */
     public function getDate($string)
     {
         return Carbon::parse($string)->toDateString();
@@ -66,9 +97,11 @@ class AdminServices {
 
         return null;
     }
-
+    
     /**
-     *
+     * Get user fields.
+     * Gets all meta fields from any user except blacklist fields.
+     * @return array
      */
     public function getUserFields()
     {
@@ -123,7 +156,7 @@ class AdminServices {
 
     /**
      * Map user fields.
-     *
+     * gets the values to send as an array for a request.
      * @param $metadata
      * @return array
      */
@@ -166,20 +199,37 @@ class AdminServices {
     }
 
     /**
+     * Get option ids.
+     * Gets ids from field options 
      * @param $field
      * @param $values
-     * @return mixed
+     * @return array
      */
     protected function getOptionIds($field, $values)
     {
         $fields = get_option('choice_options');
 
         $options = $fields[$field];
+        $arr = [];
+        foreach(array_flip($options['options']) as $value)
+        {
+            if(is_array($values))
+            {
+                $key = array_search($values,$value);
 
-        return array_keys($options['options'],$values);
+                if($key)
+                    array_push($arr,$values[$key]);
+            }else{
+                if($value == $values)
+                    array_push($arr,$values);
+            }
+        }
+        return $arr;
     }
 
     /**
+     * prepare member.
+     * Ensure email is sent with user fields.
      * @param $user_id
      * @return array
      */
@@ -193,7 +243,7 @@ class AdminServices {
         $metadata = get_user_meta($user_id);
         $params = $this->mapUserFields($metadata,$user_id);
         $params['email'] = $email;
-
+var_dump($params);
         return $params;
     }
 
@@ -318,13 +368,23 @@ class AdminServices {
         $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
         update_option('status',$status);
     }
-
+    
+    /**
+     * Get permission field.
+     * @return null
+     */
     protected function getPermissionField()
     {
         $settings = get_option('hl_settings');
         $permission = (isset($settings['hl_permission'])) ? $settings['hl_permission'] : null;
         return $permission;
     }
+    
+    /**
+     * Get user by id.
+     * @param $user_id
+     * @return user
+     */
     protected function getUser($user_id)
     {
         return get_user_by('id',$user_id);

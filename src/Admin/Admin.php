@@ -1,5 +1,27 @@
 <?php
-
+/*
+ * This file is part of wp-heyloyalty.
+ *
+ * Copyright (c) 2015 Heyloyalty.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is furnished
+ * to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 namespace Heyloyalty\Admin;
 
 use Heyloyalty\IPlugin;
@@ -102,7 +124,8 @@ class Admin
     }
 
     /**
-     * 
+     * Add tabs.
+     * Adds tabs to help in wordpress,
      */
     public function add_tabs()
     {
@@ -115,16 +138,16 @@ class Admin
         switch ($screen->base)
         {
             case 'wp-heyloyalty_page_hl-tools':
-                $tabs = $tools;
+                $tabs = $tools; //dynamic resolved
                 break;
             case 'wp-heyloyalty_page_hl-mappings':
-                $tabs = $mappings;
+                $tabs = $mappings; //dynamic resolved
                 break;
             case 'wp-heyloyalty_page_hl-settings':
-                $tabs = $settings;
+                $tabs = $settings; // dynamic resolved
                 break;
             case 'wp-heyloyalty_page_hl-woocommerce':
-                $tabs = $woo;
+                $tabs = $woo; //dynamic resolved
                 break;
         }
 
@@ -137,11 +160,18 @@ class Admin
         }
     }
 
+    /**
+     * @param $user_login
+     * @param $user
+     */
     public function last_visit($user_login, $user)
     {
         update_user_meta($user->ID, 'hl_last_visit', Carbon::now()->toDateString());
     }
 
+    /**
+     * @param $order_id
+     */
     public function last_buy($order_id)
     {
         $order = new \WC_Order($order_id);
@@ -149,6 +179,9 @@ class Admin
         update_user_meta($user_id, 'hl_last_buy', Carbon::now()->toDateString());
     }
 
+    /**
+     * @param $user_id
+     */
     public function add_user_to_heyloyalty($user_id)
     {
         update_user_meta($user_id, 'hl_permission', 'on');
@@ -160,6 +193,9 @@ class Admin
         }
     }
 
+    /**
+     * @param $user_id
+     */
     public function update_user_in_heyloyalty($user_id)
     {
         try {
@@ -169,6 +205,10 @@ class Admin
             $this->plugin['admin-services']->setError('error',$e->getMessage());
         }
     }
+
+    /**
+     * @param $user_id
+     */
     public function delete_user_in_heyloyalty($user_id)
     {
         try {
@@ -179,6 +219,9 @@ class Admin
         }
     }
 
+    /**
+     * Show front page.
+     */
     public function show_front_page()
     {
         $status = get_option('status');
@@ -193,6 +236,9 @@ class Admin
         require __DIR__ . '/views/front.php';
     }
 
+    /**
+     * Show settings page.
+     */
     public function show_settings_page()
     {
         $status = 'ok';
@@ -207,7 +253,7 @@ class Admin
     }
 
     /**
-     * Mapping page handler.
+     * Show mapping page.
      */
     public function show_mapping_page()
     {
@@ -244,6 +290,9 @@ class Admin
         require __DIR__ . '/views/mappings.php';
     }
 
+    /**
+     * Show woocommerce page
+     */
     public function show_woocommerce_page()
     {
         if (isset($_POST['option_page']) && $_POST['option_page'] === 'hl_woo') {
@@ -303,6 +352,9 @@ class Admin
         exit;
     }
 
+    /**
+     * Load assets.
+     */
     public function load_assets()
     {
         wp_register_style('hl-admin-css', $this->plugin->url() . '/assets/css/heyloyalty.css', array(), $this->plugin->version());
@@ -387,16 +439,30 @@ class Admin
     }
 
 
+    /**
+     * Save hl settings.
+     * @param $settings
+     */
     protected function save_hl_settings($settings)
     {
         update_option('hl_settings', $settings);
     }
 
+    /**
+     * Save hl woo.
+     * @param $settings
+     */
     protected function save_hl_woo($settings)
     {
         update_option('hl_woo', $settings);
     }
 
+    /**
+     * Get list for mapping.
+     * Called by ajax.
+     * @param $list_id
+     * @return array
+     */
     protected function getListForMapping($list_id)
     {
         try {
