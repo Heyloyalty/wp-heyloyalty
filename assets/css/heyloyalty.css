@@ -24,7 +24,7 @@
     padding: 5px;
 }
 
-.hl-container .draggable {
+.hl-container .draggable, .fields-container .field {
     float:left;
     border: 1px solid #0074a2;
     font-size: 14px;

@@ -73,4 +73,27 @@ jQuery(document).ready(function () {
         }
     });
     /** end function **/
+
+    /** field explore **/
+    var container = jQuery('.fields-container');
+    var infoContainer = jQuery('.fields-info-container');
+    var fieldInfo = jQuery('.field-info');
+
+    jQuery.each(fields,function(key,value){
+        container.append('<div class="field" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
+        var clone = fieldInfo.clone();
+        clone.attr("id",value.name);
+        jQuery.each(value.options,function(key,value){
+            clone.append('<li>id: '+key+' name: '+value+'</li>').appendTo(infoContainer);
+        });
+    });
+
+    container.find('.field').on('click',function(){
+        var name = jQuery(this).data('name');
+        jQuery('.field-info').hide();
+        jQuery('#'+name).show();
+    });
+
+
+    /** end field explore **/
 });

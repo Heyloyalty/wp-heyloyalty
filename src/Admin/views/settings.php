@@ -49,22 +49,6 @@
 				</table
 				<?php submit_button(); ?>
 			</form>
-            <?php if('prut' == 'fis') : ?>
-            <table class="form-table">
-                <th><label for="hl_api_settings"><?php _e( 'Sync settings', 'hl-api-settings' ); ?></label></th>
-                <tr>
-                        <td colspan="2">
-                            <label><?php _e('Sync all users with Heyloyalty', 'hl_sync'); ?></label>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td>
-                            <button class="btn btn-info" type="button">Sync users</button>
-                        </td>
-                    </tr>
-            </table>
-            <?php endif; ?>
 		</div>
         </div>
 </div>
