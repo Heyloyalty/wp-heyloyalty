@@ -93,5 +93,6 @@ jQuery(document).ready(function () {
         jQuery('.field-info').hide();
         jQuery('#'+name).show();
     });
+    
     /** end field explore **/
 });
