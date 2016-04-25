@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: wp-heyloyalty
-Version: 1.0
+Version: 1.0.1
 Plugin URI: https://heyloyalty.com/plugins/wordpress
 Description: Integrates with heyloyalty email platform
 Author: René Skou Jensen
