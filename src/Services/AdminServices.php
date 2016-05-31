@@ -109,7 +109,7 @@ class AdminServices {
         if($user = get_user_by('ID',$user_id ))
         {
             $list_id = $this->getListID();
-            $filter = array('filter' => array('eq' => array($user->user_email)));
+            $filter = array('filter' => array('email' => array('eq' => array($user->user_email))));
             $HL_user = $this->HlServices->getMemberByFilter($list_id,$filter);
 
             if(isset($HL_user['members']['id']))
