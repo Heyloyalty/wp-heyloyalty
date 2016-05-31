@@ -92,10 +92,29 @@ class AdminServices {
      */
     public function getMemberID($user_id)
     {
+        if($member_id = get_user_meta($user_id,'member_id',true)) {
+            return $member_id;
+        }else{
+            $this->setMemberID($user_id);
+        }
+
         if($member_id = get_user_meta($user_id,'member_id',true))
             return $member_id;
 
         return null;
+    }
+
+    public function setMemberID($user_id)
+    {
+        if($user = get_user_by('ID',$user_id ))
+        {
+            $list_id = $this->getListID();
+            $filter = array('filter' => array('eq' => array($user->user_email)));
+            $HL_user = $this->HlServices->getMemberByFilter($list_id,$filter);
+
+            if(isset($HL_user['members']['id']))
+                update_user_meta($user_id, 'member_id', $HL_user['members']['id']);
+        }
     }
     
     /**
