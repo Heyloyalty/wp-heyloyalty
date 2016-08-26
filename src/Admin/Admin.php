@@ -358,9 +358,9 @@ class Admin
      */
     public function load_assets()
     {
-        wp_register_style('hl-admin-css', $this->plugin->url() . '/assets/css/heyloyalty.css', array(), $this->plugin->version());
-        wp_register_script('hl-admin-js', $this->plugin->url() . '/assets/js/heyloyalty.js', array('jquery'), $this->plugin->version(), true);
-        wp_register_script('hl-ajax-request', $this->plugin->url() . '/assets/js/heyloyalty-ajax.js', array('jquery'));
+        wp_register_style('hl-admin-css', $this->plugin->url() . '/includes/css/heyloyalty.css', array(), $this->plugin->version());
+        wp_register_script('hl-admin-js', $this->plugin->url() . '/includes/js/heyloyalty.js', array('jquery'), $this->plugin->version(), true);
+        wp_register_script('hl-ajax-request', $this->plugin->url() . '/includes/js/heyloyalty-ajax.js', array('jquery'));
         wp_enqueue_script('hl-ajax-request');
         wp_enqueue_script('hl-admin-js');
         wp_enqueue_style('hl-admin-css');
