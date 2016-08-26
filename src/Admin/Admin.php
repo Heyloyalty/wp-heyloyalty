@@ -73,7 +73,7 @@ class Admin
         add_action('wp_login', array($this, 'last_visit'),10,2);
         add_action('woocommerce_payment_complete', array($this, 'last_buy'),10,1);
         add_action( 'woocommerce_after_order_notes', array($this,'add_newsletter_checkbox'),10,1 );
-        add_action( 'woocommerce_checkout_update_order_meta', 'save_newsletter_field',10,1 );
+        add_action( 'woocommerce_checkout_update_order_meta', array($this,'save_newsletter_field'),10,1 );
     }
 
     protected function add_ajax_hooks()
@@ -429,12 +429,22 @@ class Admin
     function save_newsletter_field( $order_id ) {
         if ( ! empty( $_POST['newsletter_field'] ) ) {
             $current_user = wp_get_current_user();
-
-            if(isset($current_user)) {
+            if($current_user->ID > 0) {
                 update_user_meta($current_user->ID, 'hl_permission', 'on');
+                do_action('profile_update',$current_user->ID);
             }else{
-                //TODO create new user and update info
-                error_log($_POST);
+                $user_id = username_exists($_POST['billing_email']);
+                if(!$user_id and email_exists($_POST['billing_email']) == false) {
+                    $user_name = $_POST['billing_email'];
+                    $user_email = $user_name;
+                    $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
+                    $user_id = wp_create_user($user_name, $random_password, $user_email);
+                    update_user_meta($user_id, 'hl_permission', 'on');
+                }else{
+                    update_user_meta($user_id, 'hl_permission', 'on');
+                    do_action('profile_update',$user_id);
+                }
+
             }
         }
     }

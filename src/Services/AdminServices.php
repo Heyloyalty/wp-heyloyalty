@@ -81,6 +81,7 @@ class AdminServices {
      */
     public function getDate($string)
     {
+        $string = str_replace("/", "-", $string);
         return Carbon::parse($string)->toDateString();
     }
 
@@ -146,7 +147,9 @@ class AdminServices {
         ];
 
         global $wpdb;
-        $userMetaKeys = $wpdb->get_results('SELECT meta_key FROM wp_usermeta');
+        $usermeta = $wpdb->prefix.'usermeta';
+        $query = 'select meta_key from '.$usermeta;
+        $userMetaKeys = $wpdb->get_results($query);
         $metaKeys = [];
         foreach ($userMetaKeys as $key) {
             if(!in_array($key->meta_key,$metaKeys) && !in_array($key->meta_key,$blacklist))
