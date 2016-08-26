@@ -1,5 +1,6 @@
 <?php defined('ABSPATH') or exit; ?>
 <div class="wrap" id="stb-admin" class="stb-settings">
+    <div><?php phpinfo() ?></div>
     <div class="stb-row">
         <div class="stb-col-two-third">
 
