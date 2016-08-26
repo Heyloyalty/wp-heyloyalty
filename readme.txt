@@ -6,11 +6,11 @@ Donate link: http://heyloyalty.com
 
 Tags: email, marketing, newsletter, woocommerce, e-commerce, sms, email marketing, send email
 
-Requires at least: 1.0
+Requires at least: 1.0.1
 
-Tested up to: 1.0
+Tested up to: 1.0.1
 
-Stable tag: 1.0
+Stable tag: 1.0.1
 
 License: GPLv2 or later
 
