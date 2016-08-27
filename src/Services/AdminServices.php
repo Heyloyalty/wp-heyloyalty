@@ -81,7 +81,10 @@ class AdminServices {
      */
     public function getDate($string)
     {
-        return Carbon::parse($string)->toDateString();
+        if(isset($string)) {
+            return Carbon::parse($string)->toDateString();
+        }
+        return $string;
     }
 
     /**
