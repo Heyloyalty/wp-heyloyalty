@@ -81,10 +81,8 @@ class AdminServices {
      */
     public function getDate($string)
     {
-        if(isset($string)) {
-            return Carbon::parse($string)->toDateString();
-        }
-        return $string;
+        $string = str_replace("/", "-", $string);
+        return Carbon::parse($string)->toDateString();
     }
 
     /**
@@ -95,10 +93,29 @@ class AdminServices {
      */
     public function getMemberID($user_id)
     {
+        if($member_id = get_user_meta($user_id,'member_id',true)) {
+            return $member_id;
+        }else{
+            $this->setMemberID($user_id);
+        }
+
         if($member_id = get_user_meta($user_id,'member_id',true))
             return $member_id;
 
         return null;
+    }
+
+    public function setMemberID($user_id)
+    {
+        if($user = get_user_by('ID',$user_id ))
+        {
+            $list_id = $this->getListID();
+            $filter = array('filter' => array('email' => array('eq' => array($user->user_email))));
+            $HL_user = $this->HlServices->getMemberByFilter($list_id,$filter);
+
+            if(isset($HL_user['members']['id']))
+                update_user_meta($user_id, 'member_id', $HL_user['members']['id']);
+        }
     }
     
     /**
@@ -130,7 +147,9 @@ class AdminServices {
         ];
 
         global $wpdb;
-        $userMetaKeys = $wpdb->get_results('SELECT meta_key FROM wp_usermeta');
+        $usermeta = $wpdb->prefix.'usermeta';
+        $query = 'select meta_key from '.$usermeta;
+        $userMetaKeys = $wpdb->get_results($query);
         $metaKeys = [];
         foreach ($userMetaKeys as $key) {
             if(!in_array($key->meta_key,$metaKeys) && !in_array($key->meta_key,$blacklist))

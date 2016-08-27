@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: wp-heyloyalty
-Version: 1.0
+Version: 1.0.1
 Plugin URI: https://heyloyalty.com/plugins/wordpress
 Description: Integrates with heyloyalty email platform
 Author: René Skou Jensen
@@ -9,6 +9,9 @@ Text Domain: wp-heyloyalty
 Domain Path: /languages/
 License: GPL v3
 */
+/**
+ * Main file
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	header( 'Status: 403 Forbidden' );
 	header( 'HTTP/1.1 403 Forbidden' );

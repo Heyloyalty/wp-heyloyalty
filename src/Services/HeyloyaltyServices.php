@@ -100,6 +100,11 @@ class HeyloyaltyServices {
         $response = $this->responseToArray($response);
         return $response;
     }
+
+    public function getMemberByFilter($list_id,$filter)
+    {
+        return $this->responseToArray($this->sendRequest('GET', '/lists/'.$list_id.'/members',$filter));
+    }
     /**
      * Get credentials.
      * @desc get credentials from client
