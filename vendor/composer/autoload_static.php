@@ -31,6 +31,7 @@ class ComposerStaticInit99b332cccc5bc6ddff4559687fa29c24
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
+            'Phpclient\\' => 10,
         ),
         'G' => 
         array (
@@ -75,6 +76,10 @@ class ComposerStaticInit99b332cccc5bc6ddff4559687fa29c24
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Phpclient\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/heyloyalty/hl-phpclient/src/HL-phpclient',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
