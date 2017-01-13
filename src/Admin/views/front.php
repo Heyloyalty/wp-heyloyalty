@@ -41,8 +41,10 @@
                 <h3>Status messages</h3>
             <table class="form-table">
                 <tr><th>Time</th><th>Type</th><th>Message</th></tr>
-                <?php foreach($status as $key => $value) : ?>
-                <tr class="row"><td class="notification"><?php echo str_replace('entry-','',$key);?></td><td class="type <?php echo $value['type']; ?>"><span><?php echo $value['type']; ?></span></td><td><?php echo $value['message']; ?></td></tr>
+                <?php foreach ($status as $key => $value) : ?>
+                <tr class="row">
+                  <td class="notification"><?php echo str_replace('entry-', '', $key); ?></td>
+                      <td class="type <?php echo $value['type']; ?>"><span><?php echo $value['type']; ?></span></td><td><?php echo $value['message']; ?></td></tr>
                     <tr class="spacer"></tr>
                 <?php endforeach; ?>
             </table>
