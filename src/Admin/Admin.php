@@ -56,7 +56,7 @@ class Admin
         $this->add_hooks();
         $this->add_ajax_hooks();
     }
-    
+
     /**
      * action hooks
      */
@@ -89,7 +89,7 @@ class Admin
      */
     public function menu()
     {
-        add_menu_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/assets/img/menu-icon.png');
+        add_menu_page('wp-heyloyalty', 'wp-heyloyalty', 'manage_options', $this->plugin->slug(), array($this, 'show_front_page'), $this->plugin->url() . '/includes/img/menu-icon.png');
 
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),

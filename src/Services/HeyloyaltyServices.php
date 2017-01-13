@@ -24,8 +24,9 @@
  */
 namespace Heyloyalty\Services;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
+use Phpclient\HLClient;
+use Phpclient\HLMembers;
+use Phpclient\HLLists;
 
 /**
  * Class HeyloyaltyServices.
@@ -36,7 +37,23 @@ class HeyloyaltyServices {
 
     const HOST = 'https://api.heyloyalty.com';
     const ENDPOINTTYPE = '/loyalty/v1';
-    
+    protected $client;
+    protected $memberService;
+    protected $listService;
+
+    /**
+     * HeyloyaltyServices constructor.
+     */
+    public function __construct()
+    {
+        $cred = $this->getCredentials();
+        $this->client = new HLClient($cred['api_key'],$cred['api_secret']);
+        $this->memberService = new HLMembers($this->client);
+        $this->listService = new HLLists($this->client);
+
+    }
+
+
     /**
      * Create member.
      * @param $params
@@ -45,11 +62,9 @@ class HeyloyaltyServices {
      */
     public function createMember($params,$list_id)
     {
-        $response = $this->sendRequest('POST','/lists/'.$list_id.'/members',$params);
-        $response = $this->responseToArray($response);
-        return $response;
+        return $this->memberService->create($list_id,$params);
     }
-    
+
     /**
      * Update member.
      * @param $params
@@ -59,11 +74,9 @@ class HeyloyaltyServices {
      */
     public function updateMember($params,$list_id,$member_id)
     {
-        $response = $this->sendRequest('PUT','/lists/'.$list_id.'/members/'.$member_id,$params);
-        $response = $this->responseToArray($response);
-        return $response;
+        return $this->memberService->update($list_id,$member_id,$params);
     }
-    
+
     /**
      * Delete member.
      * @param $list_id
@@ -72,11 +85,9 @@ class HeyloyaltyServices {
      */
     public function deleteMember($list_id,$member_id)
     {
-        $response = $this->sendRequest('DELETE','/lists/'.$list_id.'/members/'.$member_id);
-        $response = $this->responseToArray($response);
-        return $response;
+        return $this->memberService->delete($list_id,$member_id);
     }
-    
+
     /**
      * Get list by id.
      * @param $list_id
@@ -84,11 +95,9 @@ class HeyloyaltyServices {
      */
     public function getList($list_id)
     {
-        $response = $this->sendRequest('GET','/lists/'.$list_id);
-        $response = $this->responseToArray($response);
-        return $response;
+        return $this->listService->getList($list_id);
     }
-    
+
     /**
      * Get lists.
      * Gets all lists from an account.
@@ -96,14 +105,12 @@ class HeyloyaltyServices {
      */
     public function getLists()
     {
-        $response = $this->sendRequest('GET','/lists/');
-        $response = $this->responseToArray($response);
-        return $response;
+        return $this->listService->getLists();
     }
 
     public function getMemberByFilter($list_id,$filter)
     {
-        return $this->responseToArray($this->sendRequest('GET', '/lists/'.$list_id.'/members',$filter));
+        return $this->memberService->getMembersByFilter($list_id,$filter);
     }
     /**
      * Get credentials.
@@ -116,56 +123,6 @@ class HeyloyaltyServices {
         if (isset($credentials['api_key']) && isset($credentials['api_secret'])) return $credentials;
 
         return null;
-    }
-
-
-    /**
-     * Send request
-     * @param $type
-     * @param $url
-     * @param array $query
-     * @return mixed
-     * @throws \Exception
-     */
-    private function sendRequest($type, $url, $query = [])
-    {
-
-        $cred = $this->getCredentials();
-        $requestTimestamp = gmDate("D, d M Y H:i:s") . 'GMT';
-        $requestSignature = base64_encode(hash_hmac('sha256', $requestTimestamp, $cred['api_secret']));
-
-        $client = $this->getGuzzleClient();
-        $request = new Request($type, self::ENDPOINTTYPE . $url);
-
-
-        //add basic authorization for client
-        $response = $client->send($request, [
-            'timeout' => 2,
-            'auth' => [$cred['api_key'], $requestSignature],
-            'headers' => [
-                'X-Request-Timestamp' => $requestTimestamp
-            ],
-            'query' => $query
-        ]);
-
-
-        $code = $response->getStatusCode();
-        if ($this->responseHandler($code)) {
-            $response = $response->getBody()->getContents();
-            return $response;
-        }
-    }
-
-    /**
-     * Get guzzle client.
-     * @desc gets the guzzle version 6 client
-     * @return object
-     */
-    private function getGuzzleClient()
-    {
-        $client = new Client(['base_uri' => self::HOST]);
-
-        return $client;
     }
 
     /**
@@ -200,23 +157,5 @@ class HeyloyaltyServices {
     private function responseToArray($response)
     {
         return json_decode($response, true);
-    }
-
-    /**
-     * Get member by email.
-     * @param $client
-     * @param $email
-     * @return null
-     */
-    private function getMemberByEmail($client, $email)
-    {
-
-        $members = $this->getMembersFromList($client);
-        foreach ($members as $member) {
-            if ($member['email'] === $email) {
-                return $member;
-            }
-        }
-        return null;
     }
 }

@@ -30,6 +30,7 @@ use Heyloyalty\Services\HeyloyaltyServices;
 
 /**
  * Class AdminServices
+ * Service layer for interacting with wordpress api.
  * @package Heyloyalty\Services
  */
 class AdminServices {
@@ -69,8 +70,6 @@ class AdminServices {
             return $date;
 
         }
-
-
         return null;
     }
     
