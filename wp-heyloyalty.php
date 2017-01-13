@@ -28,7 +28,7 @@ function wp_heyloyalty() {
 		$file = __FILE__;
 		$dir = dirname( __FILE__ );
 		$name = 'Wp Heyloyalty';
-		$version = '1.0';
+		$version = '1.1.4';
         $slug = 'wp-heyloylty';
 		$instance = new $classname(
 			$id,
@@ -49,7 +49,7 @@ function __load_wp_heyloyalty() {
 	$GLOBALS['wp_heyloyalty'] = wp_heyloyalty();
 	// register activation hook
 	register_activation_hook( __FILE__, "__activate_wp_heyloyalty_plugin" );
-	
+
 }
 function __load_wp_heyloyalty_fallback() {
     //todo
