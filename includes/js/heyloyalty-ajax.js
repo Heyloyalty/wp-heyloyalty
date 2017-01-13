@@ -16,12 +16,11 @@ jQuery(document).ready(function($) {
                 listID : jQuery(this).val() //gets listId for a heyloyalty list.
             },
             function(response) {
-                
                 jQuery('.hl-container .draggable').remove(); //clear elements before populate.
                 jQuery('.wp-container .draggable').remove(); //clear elements before populate.
                 
-                jQuery.each(response.fields,function(key,value){
-                       hlContainer.append('<div class="draggable" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><img class="map-cancel" style="float:right; margin:3px 3px;" src="/wp-content/plugins/wp-heyloyalty/assets/img/badge_cancel_32.png"/><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
+                jQuery.each(JSON.parse(response.response).fields,function(key,value){
+                       hlContainer.append('<div class="draggable" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><img class="map-cancel" style="float:right; margin:3px 3px;" src="/wp-content/plugins/wp-heyloyalty/includes/img/badge_cancel_32.png"/><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
                 });
                 /** end populate **/
                 
