@@ -78,6 +78,7 @@ jQuery(document).ready(function () {
     var container = jQuery('.fields-container');
     var infoContainer = jQuery('.fields-info-container');
     var fieldInfo = jQuery('.field-info');
+    var fields = [];
 
     jQuery.each(fields,function(key,value){
         container.append('<div class="field" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
