@@ -26,6 +26,7 @@ namespace Heyloyalty\Admin;
 
 use Heyloyalty\IPlugin;
 use Carbon\Carbon;
+use Heyloyalty\Services\ApiEndPointsServices;
 
 class Admin
 {
@@ -34,6 +35,7 @@ class Admin
      * @var iPlugin @plugin
      */
     private $plugin;
+    private $apiEndpoints;
     public $tabs = array(
         // The assoc key represents the ID
         // It is NOT allowed to contain spaces
@@ -46,6 +48,7 @@ class Admin
     public function __construct(IPlugin $plugin)
     {
         $this->plugin = $plugin;
+        $this->apiEndpoints = new ApiEndPointsServices();
     }
 
     public function init()
@@ -75,7 +78,9 @@ class Admin
         add_action( 'woocommerce_after_order_notes', array($this,'add_newsletter_checkbox'),10,1 );
         add_action( 'woocommerce_checkout_update_order_meta', array($this,'save_newsletter_field'),10,1 );
     }
-
+    /**
+     * ajax hooks
+     */
     protected function add_ajax_hooks()
     {
         add_action('wp_ajax_nopriv_hl-ajax-submit', array($this, 'ajax_handler'));

@@ -55,12 +55,7 @@ function __load_wp_heyloyalty_fallback() {
     //todo
 }
 function __activate_wp_heyloyalty_plugin() {
-	$plugin_dir = plugin_dir_path( __FILE__ ) . 'hl-webhooks.php';
-	$content_dir = WP_CONTENT_DIR.'/hl-webhooks.php';
-
-	if (!copy($plugin_dir, $content_dir)) {
-
-	}
+    //function to access under the plugin activation fase.
 }
 if( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 	__load_wp_heyloyalty();
