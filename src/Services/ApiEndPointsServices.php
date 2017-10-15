@@ -3,86 +3,38 @@
 namespace Heyloyalty\Services;
 
 use Heyloyalty\Services\WpUserServices;
+use WP_REST_Controller;
 
-class ApiEndPointsServices
+class ApiEndPointsServices extends WP_REST_Controller
 {
-    private $apiToken = "heyloyaltyrocks";
-    private $WpUserServices;
-
+    public $wpUserService;
     public function __construct(){
-        add_filter('query_vars', array($this, 'add_query_vars'), 0);
-        add_action('parse_request', array($this, 'validate_requests'), 0);
-        add_action('init', array($this, 'add_endpoints'), 0);
-        $this->WpUserServices = new WpUserServices();
-    }
-
-    /** Add public query vars
-     *	@param array $vars List of current public query vars
-     *	@return array $vars
-     */
-    public function add_query_vars($vars){
-        $vars[] = '__api';
-        return $vars;
+        add_action('rest_api_init', array($this, 'add_endpoints'), 0);
+        $this->wpUserService = new WpUserServices();
     }
 
     /** Add API Endpoint
      *	@return void
      */
     public function add_endpoints(){
-        add_rewrite_rule('^api/webhooks/','index.php?__api=','top');
+        $namespace = 'wp-heyloyalty/v1';
+        register_rest_route($namespace,'/unsubscribe/',array(
+            'methods' => 'POST',
+            'callback' => array($this,'handle_unsubscribe'),
+            'args' => array(),
+        ));
     }
 
-    /**	Sniff Requests
-     *	This is where we hijack all API requests
-     *	@return die if API request
-     */
-    public function validate_requests($wp_query){
-        if($this->authenticate($wp_query->query_vars['__api'])){
-            $this->handle_request();
-            exit;
-        }
-    }
-    /**
-     * Authenticate request.
-     *
-     */
-    protected function authenticate($token)
+    public function handle_unsubscribe($request)
     {
-        $decoded = base64_decode($token);
-        if ( $decoded === $this->apiToken )
-            return true;
-
-        return false;
-    }
-
-    /** Handle Requests
-     *	@return void
-     */
-    protected function handle_request(){
-        $stream = $this->detectRequestBody();
-        $requestBody = stream_get_contents($stream);
-        $bodyArray = json_decode($requestBody,true);
-        $msg = '';
-        $code = 500;
-        switch ($bodyArray['type']) {
-            case 'unsubscribe':
-                $this->WpUserServices->unsubscribe($bodyArray);
-                break;
-            case 'update':
-                $this->WpUserServices->upsert($bodyArray);
-                break;
-            default:
-                break;
+        $body = $request->get_params();
+        if (!isset($body['data'])) {
+            return 'Error no data object';
         }
-    }
-    /**
-     * Detect request body.
-     */
-    protected function detectRequestBody() {
-        $rawInput = fopen('php://input', 'r');
-        $tempStream = fopen('php://temp', 'r+');
-        stream_copy_to_stream($rawInput, $tempStream);
-        rewind($tempStream);
-        return $tempStream;
+        $member = $body['data'];
+        if ($member['type'] == 'unsubscribe') {
+            return $this->wpUserService->unsubscribe($member);
+        }
+        return 'no member to unsubscribe';
     }
 }

@@ -131,6 +131,7 @@ class ComposerStaticInit99b332cccc5bc6ddff4559687fa29c24
         'Heyloyalty\\Services\\AdminServices' => __DIR__ . '/../..' . '/src/Services/AdminServices.php',
         'Heyloyalty\\Services\\ApiEndPointsServices' => __DIR__ . '/../..' . '/src/Services/ApiEndPointsServices.php',
         'Heyloyalty\\Services\\HeyloyaltyServices' => __DIR__ . '/../..' . '/src/Services/HeyloyaltyServices.php',
+        'Heyloyalty\\Services\\WpUserServices' => __DIR__ . '/../..' . '/src/Services/WpUserServices.php',
         'PHPUnit\\Framework\\TestCase' => __DIR__ . '/..' . '/phpunit/phpunit/src/ForwardCompatibility/TestCase.php',
         'PHPUnit_Exception' => __DIR__ . '/..' . '/phpunit/phpunit/src/Exception.php',
         'PHPUnit_Extensions_GroupTestSuite' => __DIR__ . '/..' . '/phpunit/phpunit/src/Extensions/GroupTestSuite.php',

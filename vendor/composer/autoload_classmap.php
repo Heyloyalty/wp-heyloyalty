@@ -19,6 +19,7 @@ return array(
     'Heyloyalty\\Services\\AdminServices' => $baseDir . '/src/Services/AdminServices.php',
     'Heyloyalty\\Services\\ApiEndPointsServices' => $baseDir . '/src/Services/ApiEndPointsServices.php',
     'Heyloyalty\\Services\\HeyloyaltyServices' => $baseDir . '/src/Services/HeyloyaltyServices.php',
+    'Heyloyalty\\Services\\WpUserServices' => $baseDir . '/src/Services/WpUserServices.php',
     'PHPUnit\\Framework\\TestCase' => $vendorDir . '/phpunit/phpunit/src/ForwardCompatibility/TestCase.php',
     'PHPUnit_Exception' => $vendorDir . '/phpunit/phpunit/src/Exception.php',
     'PHPUnit_Extensions_GroupTestSuite' => $vendorDir . '/phpunit/phpunit/src/Extensions/GroupTestSuite.php',
