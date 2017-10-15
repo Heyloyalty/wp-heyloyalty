@@ -2,15 +2,18 @@
 
 namespace Heyloyalty\Services;
 
+use Heyloyalty\Services\WpUserServices;
+
 class ApiEndPointsServices
 {
-    /** Hook WordPress
-     *	@return void
-     */
+    private $apiToken = "heyloyaltyrocks";
+    private $WpUserServices;
+
     public function __construct(){
         add_filter('query_vars', array($this, 'add_query_vars'), 0);
         add_action('parse_request', array($this, 'validate_requests'), 0);
         add_action('init', array($this, 'add_endpoints'), 0);
+        $this->WpUserServices = new WpUserServices();
     }
 
     /** Add public query vars
@@ -26,7 +29,7 @@ class ApiEndPointsServices
      *	@return void
      */
     public function add_endpoints(){
-        add_rewrite_rule('^api/webhooks/','index.php?__api=1','top');
+        add_rewrite_rule('^api/webhooks/','index.php?__api=','top');
     }
 
     /**	Sniff Requests
@@ -34,10 +37,22 @@ class ApiEndPointsServices
      *	@return die if API request
      */
     public function validate_requests($wp_query){
-        if(isset($wp_query->query_vars['__api'])){
+        if($this->authenticate($wp_query->query_vars['__api'])){
             $this->handle_request();
             exit;
         }
+    }
+    /**
+     * Authenticate request.
+     *
+     */
+    protected function authenticate($token)
+    {
+        $decoded = base64_decode($token);
+        if ( $decoded === $this->apiToken )
+            return true;
+
+        return false;
     }
 
     /** Handle Requests
@@ -46,19 +61,19 @@ class ApiEndPointsServices
     protected function handle_request(){
         $stream = $this->detectRequestBody();
         $requestBody = stream_get_contents($stream);
-        $bodyArray = json_decode($requestBody);
-        $this->send_response($bodyArray,200);
-    }
-
-    /** Response Handler
-     *	This sends a JSON response to the browser
-     */
-    protected function send_response($msg,$response_code){
-        $response['message'] = $msg;
-        header('content-type: application/json; charset=utf-8');
-        http_response_code($status);
-        echo json_encode($response)."\n";
-        exit;
+        $bodyArray = json_decode($requestBody,true);
+        $msg = '';
+        $code = 500;
+        switch ($bodyArray['type']) {
+            case 'unsubscribe':
+                $this->WpUserServices->unsubscribe($bodyArray);
+                break;
+            case 'update':
+                $this->WpUserServices->upsert($bodyArray);
+                break;
+            default:
+                break;
+        }
     }
     /**
      * Detect request body.
