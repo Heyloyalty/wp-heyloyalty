@@ -40,20 +40,20 @@ class HeyloyaltyServices {
     protected $client;
     protected $memberService;
     protected $listService;
-    
+
     /**
      * HeyloyaltyServices constructor.
      */
     public function __construct()
     {
         $cred = $this->getCredentials();
-        $this->client = new HLClient($cred['api-key'],$cred['api-secret']);
+        $this->client = new HLClient($cred['api_key'],$cred['api_secret']);
         $this->memberService = new HLMembers($this->client);
         $this->listService = new HLLists($this->client);
-        
+
     }
-    
-    
+
+
     /**
      * Create member.
      * @param $params
@@ -64,7 +64,7 @@ class HeyloyaltyServices {
     {
         return $this->memberService->create($list_id,$params);
     }
-    
+
     /**
      * Update member.
      * @param $params
@@ -76,7 +76,7 @@ class HeyloyaltyServices {
     {
         return $this->memberService->update($list_id,$member_id,$params);
     }
-    
+
     /**
      * Delete member.
      * @param $list_id
@@ -87,7 +87,7 @@ class HeyloyaltyServices {
     {
         return $this->memberService->delete($list_id,$member_id);
     }
-    
+
     /**
      * Get list by id.
      * @param $list_id
@@ -97,7 +97,7 @@ class HeyloyaltyServices {
     {
         return $this->listService->getList($list_id);
     }
-    
+
     /**
      * Get lists.
      * Gets all lists from an account.

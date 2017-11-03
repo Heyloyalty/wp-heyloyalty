@@ -18,12 +18,13 @@
 
                             <tr>
                                 <td><label><?php _e('Choose a list from your Heyloyalty account', 'choose-list'); ?></label></td>
-                                <td>
+                                    <td>
                                     <select id="hl_lists" name="hl_mappings[list_id]">
                                         <option><?php _e('select list', 'select-list'); ?></option>
-                                        <?php foreach ($lists as $list) : ?>
+                                        <?php foreach (json_decode($lists['response'],true) as $list) : ?>
                                             <option
-                                                value="<?php echo $list['id']; ?>" <?php echo $selected = (isset($mappings['list_id']) && $list['id'] == $mappings['list_id']) ? 'selected' : '' ?>><?php echo $list['name']; ?></option>
+                                                value="<?php echo $list['id']; ?>" <?php echo $selected = (isset($mappings['list_id']) && $list['id'] == $mappings['list_id']) ? 'selected' : '' ?>><?php echo $list['name']; ?>
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </td>
