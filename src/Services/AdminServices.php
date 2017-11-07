@@ -72,7 +72,7 @@ class AdminServices {
         }
         return null;
     }
-    
+
     /**
      * Get date.
      * @param $string
@@ -116,7 +116,7 @@ class AdminServices {
                 update_user_meta($user_id, 'member_id', $HL_user['members']['id']);
         }
     }
-    
+
     /**
      * Get user fields.
      * Gets all meta fields from any user except blacklist fields.
@@ -215,13 +215,13 @@ class AdminServices {
                     break;
             }
         }
-        
+
         return $mapped;
     }
 
     /**
      * Get option ids.
-     * Gets ids from field options 
+     * Gets ids from field options
      * @param $field
      * @param $values
      * @return array
@@ -303,7 +303,10 @@ class AdminServices {
         try{
             $response = $this->HlServices->createMember($params,$list_id);
             delete_user_meta($user_id,'member_id');
-            $response = add_user_meta($user_id,'member_id',$response['id'],true);
+            $response = json_decode($response['response'],true);
+            if (isset($response['id'])) {
+                $response = add_user_meta($user_id,'member_id',$response['id'],true);
+            }
             $this->setStatus('created',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
@@ -388,7 +391,7 @@ class AdminServices {
         $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
         update_option('status',$status);
     }
-    
+
     /**
      * Get permission field.
      * @return null
@@ -399,7 +402,7 @@ class AdminServices {
         $permission = (isset($settings['hl_permission'])) ? $settings['hl_permission'] : null;
         return $permission;
     }
-    
+
     /**
      * Get user by id.
      * @param $user_id
@@ -408,5 +411,15 @@ class AdminServices {
     protected function getUser($user_id)
     {
         return get_user_by('id',$user_id);
+    }
+
+
+    public function writelog ( $log )
+    {
+            if ( is_array( $log ) || is_object( $log ) ) {
+                error_log( print_r( $log, true ) );
+            } else {
+                error_log( $log );
+            }
     }
 }
