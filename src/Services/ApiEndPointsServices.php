@@ -28,10 +28,10 @@ class ApiEndPointsServices extends WP_REST_Controller
     public function member_handler($request)
     {
         $body = $request->get_params();
-        if (!isset($body['member_id'])) {
-            return 'member_id missing';
+        if (!isset($body['data'])) {
+            return 'No object';
         }
-        $member = $body;
+        $member = $body['data'];
         if ($member['type'] == 'unsubscribe') {
             return $this->wpUserService->unsubscribe($member);
         }
