@@ -39,10 +39,24 @@ class ApiEndPointsServices extends WP_REST_Controller
             if ($member['type'] == 'unsubscribe') {
                 return $this->wpUserService->unsubscribe($member);
             }
+            if ($member['type'] == 'update') {
+                $this->writelog($member['type']);
+                return $this->wpUserService->upsert($member);
+            }
 
             return 'no member to unsubscribe';
         } catch (Exception $e) {
+            $this->writelog($e->getMessage());
             return null;
+        }
+    }
+
+    public function writelog ( $log )
+    {
+        if ( is_array( $log ) || is_object( $log ) ) {
+            error_log( print_r( $log, true ) );
+        } else {
+            error_log( $log );
         }
     }
 }

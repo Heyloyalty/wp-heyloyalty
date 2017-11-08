@@ -239,9 +239,10 @@ class AdminServices {
     protected function getOptionIds($field, $values)
     {
         $fields = get_option('choice_options');
-        if ($values == 'DK' )
+        $countries = $this->countryParser();
+        if (isset($countries[$values]))
         {
-            $values = 53;
+            $values = $countries[$values];
         }
 
         $options = $fields[$field];
@@ -260,6 +261,38 @@ class AdminServices {
             }
         }
         return $arr;
+    }
+
+    protected function countryParser()
+    {
+        return array(
+            "DK" => 53,
+            "AL" => 4,
+            "AU" => 17,
+            "BE" => 22,
+            "CY" => 52,
+            "EG" => 63,
+            "FI" => 72,
+            "FR" => 74,
+            "DE" => 237,
+            "HU" => 240,
+            "IS" => 105,
+            "IN" => 100,
+            "IE" => 104,
+            "JP" => 110,
+            "MX" => 145,
+            "HL" => 96,
+            "NO" => 165,
+            "PL" => 175,
+            "PT" => 176,
+            "RO" => 181,
+            "RU" => 182,
+            "ES" => 207,
+            "SE" => 215,
+            "TR" => 236,
+            "GB" => 211,
+            "US" => 242
+        );
     }
 
     /**

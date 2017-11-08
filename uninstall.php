@@ -27,4 +27,3 @@ delete_option('hl_settings');
 delete_option('hl_mappings');
 delete_option('hl_woo');
 delete_option('choice_options');
-unlink(WP_CONTENT_DIR.'/hl-webhooks.php');
