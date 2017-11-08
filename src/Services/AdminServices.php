@@ -145,7 +145,15 @@ class AdminServices {
             '_woocommerce_persistent_cart',
             'session_tokens',
             'member_id',
-            'billing_email'
+            'billing_email',
+            'last_update',
+            '_woocommerce_persistent_cart_1',
+            'community-events-location',
+            'nickname',
+            'first_name',
+            'last_name',
+            'description',
+            'locale'
         ];
 
         global $wpdb;
