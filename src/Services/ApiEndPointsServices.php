@@ -40,7 +40,6 @@ class ApiEndPointsServices extends WP_REST_Controller
                 return $this->wpUserService->unsubscribe($member);
             }
             if ($member['type'] == 'update') {
-                $this->writelog($member['type']);
                 return $this->wpUserService->upsert($member);
             }
 
