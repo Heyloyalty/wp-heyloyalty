@@ -9,7 +9,7 @@ class ApiEndPointsServices extends WP_REST_Controller
 {
     public $wpUserService;
     public function __construct(){
-        add_action('rest_api_init', array($this, 'add_endpoints'), 0);
+        add_action('rest_api_init', array($this, 'add_endpoints'),0);
         $this->wpUserService = new WpUserServices();
     }
 
@@ -17,21 +17,21 @@ class ApiEndPointsServices extends WP_REST_Controller
      *	@return void
      */
     public function add_endpoints(){
-        $namespace = 'wp-heyloyalty/v1';
-        register_rest_route($namespace,'/unsubscribe/',array(
+        $namespace = 'wp-heyloyalty';
+        register_rest_route($namespace,'/member',array(
             'methods' => 'POST',
-            'callback' => array($this,'handle_unsubscribe'),
+            'callback' => array($this,'member_handler'),
             'args' => array(),
         ));
     }
 
-    public function handle_unsubscribe($request)
+    public function member_handler($request)
     {
         $body = $request->get_params();
-        if (!isset($body['data'])) {
-            return 'Error no data object';
+        if (!isset($body['member_id'])) {
+            return 'member_id missing';
         }
-        $member = $body['data'];
+        $member = $body;
         if ($member['type'] == 'unsubscribe') {
             return $this->wpUserService->unsubscribe($member);
         }

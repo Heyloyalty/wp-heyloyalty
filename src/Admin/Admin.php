@@ -443,6 +443,7 @@ class Admin
                 }
             }
             if ( isset($user_id) ) {
+                update_user_meta($user_id, 'hl_last_buy', Carbon::now()->toDateString());
                 do_action('heyloyalty_update_user',$user_id);
             }
         } catch (Exception $e) {

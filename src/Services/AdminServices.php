@@ -81,7 +81,10 @@ class AdminServices {
     public function getDate($string)
     {
         $string = str_replace("/", "-", $string);
-        return Carbon::parse($string)->toDateString();
+        if (Carbon::createFromFormat('Y-m-d', $string) !== false) {
+            return Carbon::createFromFormat('Y-m-d', $string)->toDateString();
+        }
+        return '';
     }
 
     /**
@@ -169,6 +172,9 @@ class AdminServices {
         foreach ($fields as $key => $value) {
             if($value['format'] == 'choice' || $value['format'] == 'multi' || $value['format'] == 'shop')
             {
+                if ($key == 'billing_country' || $key == 'shipping_country') {
+                    $key = 'country';
+                }
                 $choices[$key] = $value;
             }
         }
@@ -200,13 +206,17 @@ class AdminServices {
             if(isset($metadata[$key][0]))
             $mapped[$value] = $metadata[$key][0];
 
-            if($key == 'user_registered')
+            if($key == 'user_registered') {
                 $mapped[$value] = $this->getRegisteredDate($user_id);
+            }
+            if (!isset($metadata[$key][0])) {
+                continue;
+            }
 
             switch ($formats[$value])
             {
                 case 'date':
-                $mapped[$value] = $this->getDate($metadata[$key][0]);
+                    $mapped[$value] = $this->getDate($metadata[$key][0]);
                     break;
                 case 'choice':
                 case 'multi':
@@ -229,6 +239,10 @@ class AdminServices {
     protected function getOptionIds($field, $values)
     {
         $fields = get_option('choice_options');
+        if ($values == 'DK' )
+        {
+            $values = 53;
+        }
 
         $options = $fields[$field];
         $arr = [];
@@ -292,10 +306,6 @@ class AdminServices {
     {
         $field = $this->getPermissionField();
         $user = $this->getUser($user_id);
-        if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error','permission field could not be found');
-            return 0;
-        }
 
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
@@ -327,10 +337,6 @@ class AdminServices {
     {
         $field = $this->getPermissionField();
         $user = $this->getUser($user_id);
-        if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error','permission field could not be found');
-            return 0;
-        }
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
         $member_id = $this->getMemberID($user_id);
