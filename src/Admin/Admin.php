@@ -22,6 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace Heyloyalty\Admin;
 
 use Heyloyalty\IPlugin;
@@ -30,7 +31,6 @@ use Heyloyalty\Services\ApiEndPointsServices;
 
 class Admin
 {
-
     /**
      * @var iPlugin @plugin
      */
@@ -40,9 +40,8 @@ class Admin
         // The assoc key represents the ID
         // It is NOT allowed to contain spaces
         'EXAMPLE' => array(
-            'title'   => 'TEST ME!'
-        ,'content' => 'FOO'
-        )
+            'title' => 'TEST ME!', 'content' => 'FOO',
+        ),
     );
 
     public function __construct(IPlugin $plugin)
@@ -53,7 +52,6 @@ class Admin
 
     public function init()
     {
-
         load_plugin_textdomain('wp-heyloyalty', null, $this->plugin->dir() . '/languages');
 
         $this->add_hooks();
@@ -61,25 +59,26 @@ class Admin
     }
 
     /**
-     * action hooks
+     * action hooks.
      */
     protected function add_hooks()
     {
         add_action('init', array($this, 'register'));
         add_action('admin_menu', array($this, 'menu'));
-        add_action('user_register', array($this, 'add_user_to_heyloyalty'));
-        add_action('profile_update', array($this, 'update_user_in_heyloyalty'));
+        add_action('user_register', array($this, 'add_user_to_heyloyalty'), 10, 1);
+        add_action('profile_update', array($this, 'update_user_in_heyloyalty'), 20, 1);
         add_action('show_user_profile', array($this, 'add_permission_field'));
         add_action('edit_user_profile', array($this, 'add_permission_field'));
         add_action('personal_option_update', array($this, 'save_permission'));
         add_action('edit_user_profile_update', array($this, 'save_permission'));
-        add_action('wp_login', array($this, 'last_visit'),10,2);
-        add_action('woocommerce_payment_complete', array($this, 'last_buy'),10,1);
-        add_action( 'woocommerce_after_order_notes', array($this,'add_newsletter_checkbox'),10,1 );
-        add_action( 'woocommerce_checkout_update_order_meta', array($this,'save_newsletter_field'),10,1 );
+        add_action('wp_login', array($this, 'last_visit'), 10, 2);
+        add_action('woocommerce_payment_complete', array($this, 'last_buy'), 10, 1);
+        add_action('woocommerce_review_order_before_submit', array($this, 'add_newsletter_checkbox'), 10, 1);
+        add_action('woocommerce_checkout_order_processed', array($this, 'save_newsletter_field'), 10, 3);
+        add_action('heyloyalty_update_user', array($this, 'update_user_in_heyloyalty'), 20, 1);
     }
     /**
-     * ajax hooks
+     * ajax hooks.
      */
     protected function add_ajax_hooks()
     {
@@ -99,10 +98,10 @@ class Admin
         $menu_items = array(
             array(__('Settings', 'wp-heyloyalty'), __('Settings', 'wp-heyloyalty'), 'hl-settings', array($this, 'show_settings_page')),
             array(__('Mappings', 'wp-heyloyalty'), __('Mappings', 'wp-heyloyalty'), 'hl-mappings', array($this, 'show_mapping_page')),
-            array(__('Tools', 'wp-heyloyalty'), __('Tools', 'wp-heyloyalty'), 'hl-tools', array($this, 'show_tools_page'))
+            array(__('Tools', 'wp-heyloyalty'), __('Tools', 'wp-heyloyalty'), 'hl-tools', array($this, 'show_tools_page')),
 
         );
-        /**
+        /*
          * Check if WooCommerce is active
          **/
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
@@ -113,35 +112,33 @@ class Admin
             $page = add_submenu_page('wp-heyloyalty/wp-heyloyalty.php', $item[0], $item[1], 'manage_options', $item[2], $item[3]);
             add_action('admin_print_styles-' . $page, array($this, 'load_assets'));
             add_action('admin_enqueue_scripts-' . $page, array($this, 'load_assets'));
-            add_action( "load-".$page, array( $this, 'add_tabs' ), 20 );
+            add_action('load-' . $page, array($this, 'add_tabs'), 20);
         }
-
     }
     /**
-     * register hooks
+     * register hooks.
      */
     public function register()
     {
         register_setting('hl-settings', 'hl-settings');
         register_setting('hl-mappings', 'hl-mappings');
         register_setting('hl-woocommerce', 'hl-woocommerce');
-        register_setting('hl-tools','hl-tools');
+        register_setting('hl-tools', 'hl-tools');
     }
 
     /**
      * Add tabs.
-     * Adds tabs to help in wordpress,
+     * Adds tabs to help in wordpress,.
      */
     public function add_tabs()
     {
-        require(__DIR__.'/views/help-screens/tools.php');
-        require(__DIR__.'/views/help-screens/settings.php');
-        require(__DIR__.'/views/help-screens/mappings.php');
-        require(__DIR__.'/views/help-screens/woocommerce.php');
+        require __DIR__ . '/views/help-screens/tools.php';
+        require __DIR__ . '/views/help-screens/settings.php';
+        require __DIR__ . '/views/help-screens/mappings.php';
+        require __DIR__ . '/views/help-screens/woocommerce.php';
         $screen = get_current_screen();
         $tabs = null;
-        switch ($screen->base)
-        {
+        switch ($screen->base) {
             case 'wp-heyloyalty_page_hl-tools':
                 $tabs = $tools; //dynamic resolved
                 break;
@@ -160,7 +157,7 @@ class Admin
             $screen->add_help_tab(array(
                 'id' => $tab['id'],
                 'title' => $tab['title'],
-                'content' => $tab['content']
+                'content' => $tab['content'],
             ));
         }
     }
@@ -189,12 +186,11 @@ class Admin
      */
     public function add_user_to_heyloyalty($user_id)
     {
-        update_user_meta($user_id, 'hl_permission', 'on');
         try {
             $response = $this->plugin['admin-services']->addHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
             //register error to show on front page.
-            $this->plugin['admin-services']->setError('error',$e->getMessage());
+            $this->plugin['admin-services']->setError('error', $e->getMessage());
         }
     }
 
@@ -207,7 +203,7 @@ class Admin
             $response = $this->plugin['admin-services']->updateHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
             //register error to show on front page.
-            $this->plugin['admin-services']->setError('error',$e->getMessage());
+            $this->plugin['admin-services']->setError('error', $e->getMessage());
         }
     }
 
@@ -220,7 +216,7 @@ class Admin
             $response = $this->plugin['admin-services']->deleteHeyloyaltyMember($user_id);
         } catch (\Exception $e) {
             //register error to show on front page.
-            $this->plugin['admin-services']->setError('error',$e->getMessage());
+            $this->plugin['admin-services']->setError('error', $e->getMessage());
         }
     }
 
@@ -232,11 +228,12 @@ class Admin
         $status = get_option('status');
         $errors = get_option('errors');
 
-        if(is_array($status) && is_array($errors))
-            $status = array_merge($status,$errors);
+        if (is_array($status) && is_array($errors)) {
+            $status = array_merge($status, $errors);
+        }
 
         krsort($status);
-        $status = array_slice($status,0,20);
+        $status = array_slice($status, 0, 20);
 
         require __DIR__ . '/views/front.php';
     }
@@ -249,12 +246,10 @@ class Admin
         $status = 'ok';
         if (isset($_POST['hl_settings'])) {
             $this->save_hl_settings($_POST['hl_settings']);
-
         }
 
         $opts = $this->plugin['options'];
         require __DIR__ . '/views/settings.php';
-
     }
 
     /**
@@ -266,13 +261,13 @@ class Admin
             $str = $_POST['mapped'];
 
             //get hl-key, hl-format and wp-key from string container.
-            preg_match_all("/([^,= ]+)=([^,= ]+)=([^,= ]+)/", $str, $r);
+            preg_match_all('/([^,= ]+)=([^,= ]+)=([^,= ]+)/', $str, $r);
 
             //combine wp-key and hl-key into a key/value pair array.
             $result = array_combine($r[1], $r[3]);
 
             //combine hl-key and hl-format info key/value pair array.
-            $fieldsFormats = array_combine($r[3],$r[2]);
+            $fieldsFormats = array_combine($r[3], $r[2]);
 
             $mappings = get_option('hl_mappings');
             $mappings['fields'] = $result;
@@ -287,7 +282,7 @@ class Admin
         } catch (\Exception $e) {
 
             //register error to show on front page.
-            $this->plugin['admin-services']->setError('error',$e->getMessage());
+            $this->plugin['admin-services']->setError('error', $e->getMessage());
         }
         $user_fields = $this->plugin['admin-services']->getUserFields();
         $mappings = $this->plugin['mappings'];
@@ -296,7 +291,7 @@ class Admin
     }
 
     /**
-     * Show woocommerce page
+     * Show woocommerce page.
      */
     public function show_woocommerce_page()
     {
@@ -317,8 +312,7 @@ class Admin
         $status = 'ok';
         $fields = json_encode(get_option('choice_options'));
         if (isset($_POST['action']) && isset($_POST['user'])) {
-            switch($_POST['action'])
-            {
+            switch ($_POST['action']) {
                 case 'create':
                     $this->add_user_to_heyloyalty($_POST['user']);
                     $status = 'created';
@@ -337,7 +331,7 @@ class Admin
     }
 
     /**
-     * Handler for wordpress ajax calls
+     * Handler for wordpress ajax calls.
      */
     public function ajax_handler()
     {
@@ -345,13 +339,13 @@ class Admin
         $handle = $_POST['handle'];
 
         switch ($handle) {
-            case "getListForMapping":
+            case 'getListForMapping':
                 $response = $this->getListForMapping($_POST['listID']);
                 break;
         }
 
         // response output
-        header("Content-Type: application/json");
+        header('Content-Type: application/json');
         echo $response;
 
         // IMPORTANT: don't forget to "exit"
@@ -376,6 +370,7 @@ class Admin
 
     /**
      * adds Heyloyalty permission field to user profil.
+     *
      * @param $user
      */
     public function add_permission_field($user)
@@ -386,6 +381,7 @@ class Admin
 
     /**
      * save permisson on user profile page.
+     *
      * @param $user_id
      */
     public function save_permission($user_id)
@@ -398,30 +394,28 @@ class Admin
     /**
      * adds newsletter checkbox to woocommerce checkout flow.
      */
-    public function add_newsletter_checkbox( $checkout ) {
+    public function add_newsletter_checkbox()
+    {
         global $current_user;
         get_current_user();
-        $permission = get_user_meta($current_user->ID,'hl_permission',true);
+        $permission = get_user_meta($current_user->ID, 'hl_permission', true);
+        $checkboxText = __('Yes to newsletter', 'wp-heyloyalty');
 
-        if($permission != 'on')
-        {
-        echo '<div id="news_permission">';
+        if ($permission != 'on') {
+            echo '<div id="news_permission">';
+            echo '<p class="form-row newsletter">
+<input type="checkbox" class="input-checkbox hl-newsletter" name="newsletter_field" id="hl-newsletter" />
+<label for="hl-newsletter" class="checkbox">' . $checkboxText . '</label>
+</p>';
 
-        woocommerce_form_field( 'newsletter_field', array(
-            'type'          => 'checkbox',
-            'class'         => array('my-field-class form-row-wide'),
-            'label'         => __('Ja tak til nyhedsbrev'),
-            'placeholder'   => __('Enter something'),
-        ), $checkout->get_value( 'newsletter_field' ));
-
-        echo '</div>';
+            echo '</div>';
         }
-
     }
     /**
-     * validate newsletter field on woocommerce checkout flow
+     * validate newsletter field on woocommerce checkout flow.
      */
-    function validate_newsletter_field() {
+    public function validate_newsletter_field()
+    {
         // Check if set, if its not set add an error.
         //if ( ! $_POST['newsletter_field'] )
         //  wc_add_notice( __( 'Please enter something into this new shiny field.' ), 'error' );
@@ -429,34 +423,37 @@ class Admin
 
     /**
      * save newsletter value to hl permission on process order
-     * if there is a customer loggin
+     * if there is a customer loggin.
      */
-    function save_newsletter_field( $order_id ) {
-        if ( ! empty( $_POST['newsletter_field'] ) ) {
-            $current_user = wp_get_current_user();
-            if($current_user->ID > 0) {
-                update_user_meta($current_user->ID, 'hl_permission', 'on');
-                do_action('profile_update',$current_user->ID);
-            }else{
-                $user_id = username_exists($_POST['billing_email']);
-                if(!$user_id and email_exists($_POST['billing_email']) == false) {
-                    $user_name = $_POST['billing_email'];
-                    $user_email = $user_name;
+    public function save_newsletter_field($order_id, $posted_data, $order)
+    {
+        try {
+            $user_id = $order->get_user_id();
+            if (!empty($_POST['newsletter_field'])) {
+                if (!isset($user_id) && !email_exists($posted_data['billing_email'])) {
+                    $user_name = (isset($posted_data['firstname']) && !username_exists($posted_data['firstname'])) ? $posted_data['firstname'] : $posted_data['billing_email'];
                     $random_password = wp_generate_password($length = 12, $include_standard_special_chars = false);
-                    $user_id = wp_create_user($user_name, $random_password, $user_email);
+                    $user_id = wp_create_user($user_name, $random_password, $posted_data['billing_email']);
                     update_user_meta($user_id, 'hl_permission', 'on');
-                }else{
+                } elseif (!isset($user_id) && email_exists($posted_data['billing_email'])) {
+                    $user_id = email_exists($posted_data['billing_email']);
                     update_user_meta($user_id, 'hl_permission', 'on');
-                    do_action('profile_update',$user_id);
+                } else {
+                    update_user_meta($user_id, 'hl_permission', 'on');
                 }
-
             }
+            if ( isset($user_id) ) {
+                update_user_meta($user_id, 'hl_last_buy', Carbon::now()->toDateString());
+                do_action('heyloyalty_update_user',$user_id);
+            }
+        } catch (Exception $e) {
+            $this->plugin['admin-services']->setError('error', $e->getMessage());
         }
     }
 
-
     /**
      * Save hl settings.
+     *
      * @param $settings
      */
     protected function save_hl_settings($settings)
@@ -466,6 +463,7 @@ class Admin
 
     /**
      * Save hl woo.
+     *
      * @param $settings
      */
     protected function save_hl_woo($settings)
@@ -476,20 +474,21 @@ class Admin
     /**
      * Get list for mapping.
      * Called by ajax.
+     *
      * @param $list_id
+     *
      * @return array
      */
     protected function getListForMapping($list_id)
     {
         try {
-
             $response = $this->plugin['heyloyalty-services']->getList($list_id);
-            $this->plugin['admin-services']->saveListFieldChoiceOptions($response['fields']);
+            $result = json_decode($response['response'],true);
+            $this->plugin['admin-services']->saveListFieldChoiceOptions($result['fields']);
             $mappings = get_option('hl_mappings');
             $mappings['list_id'] = $list_id;
             update_option('hl_mappings', $mappings);
             $response = json_encode($response);
-
         } catch (\Exception $e) {
             $response = array('status' => false);
         }

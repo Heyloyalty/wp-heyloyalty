@@ -4,7 +4,7 @@
   Version: 1.1.4
   Plugin URI: https://heyloyalty.com/plugins/wordpress
   Description: Integrates with heyloyalty email platform
-  Author: René Skou Jensen
+  Author: Heyloyalty
   Text Domain: wp-heyloyalty
   Domain Path: /languages/
   License: GPL v3

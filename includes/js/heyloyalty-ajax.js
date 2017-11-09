@@ -20,7 +20,9 @@ jQuery(document).ready(function($) {
                 jQuery('.wp-container .draggable').remove(); //clear elements before populate.
                 
                 jQuery.each(JSON.parse(response.response).fields,function(key,value){
-                       hlContainer.append('<div class="draggable" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><img class="map-cancel" style="float:right; margin:3px 3px;" src="/wp-content/plugins/wp-heyloyalty/includes/img/badge_cancel_32.png"/><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
+                    if (value.name != 'email') {
+                        hlContainer.append('<div class="draggable" data-name="'+value.name+'" data-format="'+value.format+'"><label>' + value.name + '</label><img class="map-cancel" style="float:right; margin:3px 3px;" src="/wp-content/plugins/wp-heyloyalty/includes/img/badge_cancel_32.png"/><div class="format"><span style="font-size:11px">'+"format: "+value.format+'</span></div>');
+                    }
                 });
                 /** end populate **/
                 

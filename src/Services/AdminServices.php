@@ -72,7 +72,7 @@ class AdminServices {
         }
         return null;
     }
-    
+
     /**
      * Get date.
      * @param $string
@@ -81,7 +81,10 @@ class AdminServices {
     public function getDate($string)
     {
         $string = str_replace("/", "-", $string);
-        return Carbon::parse($string)->toDateString();
+        if (Carbon::createFromFormat('Y-m-d', $string) !== false) {
+            return Carbon::createFromFormat('Y-m-d', $string)->toDateString();
+        }
+        return '';
     }
 
     /**
@@ -116,7 +119,7 @@ class AdminServices {
                 update_user_meta($user_id, 'member_id', $HL_user['members']['id']);
         }
     }
-    
+
     /**
      * Get user fields.
      * Gets all meta fields from any user except blacklist fields.
@@ -142,7 +145,15 @@ class AdminServices {
             '_woocommerce_persistent_cart',
             'session_tokens',
             'member_id',
-            'billing_email'
+            'billing_email',
+            'last_update',
+            '_woocommerce_persistent_cart_1',
+            'community-events-location',
+            'nickname',
+            'first_name',
+            'last_name',
+            'description',
+            'locale'
         ];
 
         global $wpdb;
@@ -169,6 +180,9 @@ class AdminServices {
         foreach ($fields as $key => $value) {
             if($value['format'] == 'choice' || $value['format'] == 'multi' || $value['format'] == 'shop')
             {
+                if ($key == 'billing_country' || $key == 'shipping_country') {
+                    $key = 'country';
+                }
                 $choices[$key] = $value;
             }
         }
@@ -200,13 +214,17 @@ class AdminServices {
             if(isset($metadata[$key][0]))
             $mapped[$value] = $metadata[$key][0];
 
-            if($key == 'user_registered')
+            if($key == 'user_registered') {
                 $mapped[$value] = $this->getRegisteredDate($user_id);
+            }
+            if (!isset($metadata[$key][0])) {
+                continue;
+            }
 
             switch ($formats[$value])
             {
                 case 'date':
-                $mapped[$value] = $this->getDate($metadata[$key][0]);
+                    $mapped[$value] = $this->getDate($metadata[$key][0]);
                     break;
                 case 'choice':
                 case 'multi':
@@ -215,13 +233,13 @@ class AdminServices {
                     break;
             }
         }
-        
+
         return $mapped;
     }
 
     /**
      * Get option ids.
-     * Gets ids from field options 
+     * Gets ids from field options
      * @param $field
      * @param $values
      * @return array
@@ -229,6 +247,11 @@ class AdminServices {
     protected function getOptionIds($field, $values)
     {
         $fields = get_option('choice_options');
+        $countries = $this->countryParser();
+        if (isset($countries[$values]))
+        {
+            $values = $countries[$values];
+        }
 
         $options = $fields[$field];
         $arr = [];
@@ -246,6 +269,38 @@ class AdminServices {
             }
         }
         return $arr;
+    }
+
+    protected function countryParser()
+    {
+        return array(
+            "DK" => 53,
+            "AL" => 4,
+            "AU" => 17,
+            "BE" => 22,
+            "CY" => 52,
+            "EG" => 63,
+            "FI" => 72,
+            "FR" => 74,
+            "DE" => 237,
+            "HU" => 240,
+            "IS" => 105,
+            "IN" => 100,
+            "IE" => 104,
+            "JP" => 110,
+            "MX" => 145,
+            "HL" => 96,
+            "NO" => 165,
+            "PL" => 175,
+            "PT" => 176,
+            "RO" => 181,
+            "RU" => 182,
+            "ES" => 207,
+            "SE" => 215,
+            "TR" => 236,
+            "GB" => 211,
+            "US" => 242
+        );
     }
 
     /**
@@ -292,10 +347,6 @@ class AdminServices {
     {
         $field = $this->getPermissionField();
         $user = $this->getUser($user_id);
-        if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error','permission field could not be found');
-            return 0;
-        }
 
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
@@ -303,7 +354,10 @@ class AdminServices {
         try{
             $response = $this->HlServices->createMember($params,$list_id);
             delete_user_meta($user_id,'member_id');
-            $response = add_user_meta($user_id,'member_id',$response['id'],true);
+            $response = json_decode($response['response'],true);
+            if (isset($response['id'])) {
+                $response = add_user_meta($user_id,'member_id',$response['id'],true);
+            }
             $this->setStatus('created',$user->user_email.' on list '.$list_id);
         }catch (\Exception $e)
         {
@@ -324,10 +378,6 @@ class AdminServices {
     {
         $field = $this->getPermissionField();
         $user = $this->getUser($user_id);
-        if(get_user_meta($user_id,$field,true) == '') {
-            $this->setError('error','permission field could not be found');
-            return 0;
-        }
         $list_id = $this->getListID();
         $params = $this->prepareMember($user_id);
         $member_id = $this->getMemberID($user_id);
@@ -388,7 +438,7 @@ class AdminServices {
         $status['entry-'.Carbon::now()] = array('type' => $type,'message'=> $message);
         update_option('status',$status);
     }
-    
+
     /**
      * Get permission field.
      * @return null
@@ -399,7 +449,7 @@ class AdminServices {
         $permission = (isset($settings['hl_permission'])) ? $settings['hl_permission'] : null;
         return $permission;
     }
-    
+
     /**
      * Get user by id.
      * @param $user_id
@@ -408,5 +458,15 @@ class AdminServices {
     protected function getUser($user_id)
     {
         return get_user_by('id',$user_id);
+    }
+
+
+    public function writelog ( $log )
+    {
+            if ( is_array( $log ) || is_object( $log ) ) {
+                error_log( print_r( $log, true ) );
+            } else {
+                error_log( $log );
+            }
     }
 }
