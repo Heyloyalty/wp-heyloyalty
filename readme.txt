@@ -23,6 +23,9 @@ The plugin add support for woocommerce by adding extra field you can use like la
 
 == Changelog ==
 
+= 1.1.0 =
+* Bug fixses
+
 = 1.0.1 =
 * Added phpunit
 * Added travis build file
